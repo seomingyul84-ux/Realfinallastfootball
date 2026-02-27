@@ -394,6 +394,112 @@ function makeDot(xp,yp,num,name,isOpp,idx){
   return dot;
 }
 
+// ── smooth player animation (rAF lerp) ───────────────────────
+// 각 선수의 현재 위치와 목표 위치를 저장
+var playerCurrent = [];  // [{x,y}] * 22 (my0~10, opp0~10)
+var playerTarget  = [];
+var rafId = null;
+var LERP_SPEED = 0.055; // 낮을수록 더 부드럽고 느리게
+
+(function initPos(){
+  for(var i=0;i<22;i++){
+    playerCurrent.push({x:50,y:50,state:'NORMAL'});
+    playerTarget.push({x:50,y:50,state:'NORMAL'});
+  }
+})();
+
+function startRaf(){
+  if(rafId) return;
+  function loop(){
+    var anyMoving=false;
+    for(var i=0;i<22;i++){
+      var cur=playerCurrent[i], tgt=playerTarget[i];
+      var dx=tgt.x-cur.x, dy=tgt.y-cur.y;
+      if(Math.abs(dx)>0.01||Math.abs(dy)>0.01){
+        cur.x+=dx*LERP_SPEED;
+        cur.y+=dy*LERP_SPEED;
+        anyMoving=true;
+        var isOpp=(i>=11);
+        var idx=isOpp?i-11:i;
+        var el=document.getElementById((isOpp?'opp':'my')+idx);
+        if(el){
+          el.style.left=cur.x+'%';
+          el.style.top =cur.y+'%';
+        }
+      }
+    }
+    rafId=requestAnimationFrame(loop);
+  }
+  rafId=requestAnimationFrame(loop);
+}
+
+function stopRaf(){
+  if(rafId){ cancelAnimationFrame(rafId); rafId=null; }
+}
+
+function setTargets(targets){
+  // targets: [{x,y,state}] * 22, 순서: my0..10, opp0..10
+  targets.forEach(function(t,i){
+    if(!t) return;
+    playerTarget[i].x=t.x;
+    playerTarget[i].y=t.y;
+    playerTarget[i].state=t.state||'NORMAL';
+    // dot 상태 업데이트 (글로우)
+    var isOpp=(i>=11), idx=isOpp?i-11:i;
+    setDotState(idx,isOpp,t.state||'NORMAL');
+  });
+}
+
+// makeDot에서 transition 제거 (rAF가 직접 이동시키니까)
+function makeDot(xp,yp,num,name,isOpp,idx){
+  var sz=Math.round(pitchW*0.088);
+  var dot=document.createElement('div');
+  dot.className='pdot';
+  dot.id=(isOpp?'opp':'my')+idx;
+  dot.style.left=xp+'%'; dot.style.top=yp+'%';
+  // transition 없음 — rAF lerp로 이동
+
+  var c=document.createElement('div');
+  c.className='pcirc'+(isOpp?' opp':'');
+  c.style.width=sz+'px'; c.style.height=sz+'px';
+  c.style.fontSize=Math.round(sz*.33)+'px';
+  c.textContent=num;
+
+  var t=document.createElement('div');
+  t.className='ptag';
+  t.textContent=name.length>4?name.slice(0,4):name;
+
+  dot.appendChild(c); dot.appendChild(t);
+  return dot;
+}
+
+// renderFormation 호출 시 현재/목표 위치도 초기화
+function renderFormation(){
+  var pitch=document.getElementById('pitch');
+  pitch.querySelectorAll('.pdot').forEach(function(e){e.remove();});
+
+  var curF=document.querySelector('.fbtn.active');
+  var fname=curF?curF.dataset.f:'4-4-2';
+  var pos=FM26Engine.FORMATIONS[fname];
+  if(!pos) return;
+  var sq=FM26Engine.State.players||FM26Engine.makeSquad();
+  var op=FM26Engine.State.opps  ||FM26Engine.makeOppSquad();
+
+  pos.forEach(function(p,i){
+    var pl=sq[i]||{num:i+1,name:'?'};
+    pitch.appendChild(makeDot(p[0],p[1],pl.num,pl.name,false,i));
+    playerCurrent[i]  ={x:p[0],y:p[1],state:'NORMAL'};
+    playerTarget[i]   ={x:p[0],y:p[1],state:'NORMAL'};
+  });
+  pos.forEach(function(p,i){
+    var op2=op[i]||{name:'?'};
+    var oy=100-p[1];
+    pitch.appendChild(makeDot(p[0],oy,i+1,op2.name,true,i));
+    playerCurrent[11+i]={x:p[0],y:oy,state:'NORMAL'};
+    playerTarget[11+i] ={x:p[0],y:oy,state:'NORMAL'};
+  });
+}
+
 // ── trajectory animation ─────────────────────────────────────
 function drawTrajectory(x1p,y1p,x2p,y2p,type,onDone){
   var svg=document.getElementById('trajSvg');
@@ -508,20 +614,21 @@ function setDotState(idx,isOpp,state){
 
 // ── tick update ──────────────────────────────────────────────
 function onTick(data){
+  // 볼 위치
   var ball=document.getElementById('ball');
   ball.style.left=data.ballX+'%'; ball.style.top=data.ballY+'%';
   document.getElementById('minDisp').textContent=data.minute;
 
-  // apply positioning
-  data.positions.forEach(function(pos,i){
-    if(!pos) return;
-    var isOpp=(i%2===1);
-    var idx=Math.floor(i/2);
-    var el=document.getElementById((isOpp?'opp':'my')+idx);
-    if(!el) return;
-    el.style.left=pos.x+'%'; el.style.top=pos.y+'%';
-    setDotState(idx,isOpp,pos.state);
-  });
+  // 선수 목표 위치 업데이트 — rAF lerp가 부드럽게 이동시킴
+  // engine targets 순서: [my0,opp0, my1,opp1, ...] → 인덱스 재배열
+  if(data.targets){
+    var reordered=[];
+    for(var i=0;i<11;i++){
+      reordered[i]    = data.targets[i*2];     // my
+      reordered[11+i] = data.targets[i*2+1];   // opp
+    }
+    setTargets(reordered);
+  }
 }
 
 // ── event update ─────────────────────────────────────────────
@@ -679,10 +786,11 @@ document.getElementById('simBtn').addEventListener('click',function(){
   var formation=curF?curF.dataset.f:'4-4-2';
 
   FM26Engine.runSimulation(press,tempo,{
-    onStart:function(){},
+    onStart:function(){ startRaf(); },
     onTick:onTick,
     onEvent:onEvent,
     onEnd:function(d){
+      stopRaf();
       var res=d.myScore>d.oppScore?'승리! 🎉':d.myScore<d.oppScore?'패배...':'무승부';
       addLog(90,'gmy','🏁 경기 종료 — '+res+' ('+d.myScore+':'+d.oppScore+')');
       addLog(90,'amb','xG 우리 '+d.myXG.toFixed(2)+' vs 상대 '+d.oppXG.toFixed(2));
@@ -703,6 +811,7 @@ document.getElementById('simBtn').addEventListener('click',function(){
 document.getElementById('rstBtn').addEventListener('click',function(){
   FM26Engine.stopSimulation();
   setTimeout(function(){   // stop이 async라 한 틱 뒤에 리셋
+    stopRaf();
     FM26Engine.resetState();
     document.getElementById('score').textContent='- : -';
     document.getElementById('mstatus').textContent='경기 전';
@@ -770,3 +879,4 @@ requestAnimationFrame(function(){
 </script>
 </body>
 </html>
+
