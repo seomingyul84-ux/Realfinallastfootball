@@ -3,304 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FM26</title>
+<title>FM26 — Advanced</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+/* ── reset & vars ─────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#07100a; --bg2:#0c180d; --bg3:#101a11; --panel:#0d170e;
+  --border:#182918; --green:#00ff41; --g2:#00c832; --gdim:#00441a;
+  --gmute:#0d2016; --amber:#ffb700; --red:#ff3c3c; --blue:#33ccff;
+  --text:#b5d8b5; --tdim:#385838;
+}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:monospace;display:flex;flex-direction:column;}
 
-  :root {
-    --bg:     #09120a;
-    --bg2:    #0e1a0f;
-    --bg3:    #131f14;
-    --panel:  #0f1a10;
-    --border: #1c2e1d;
-    --green:  #00ff41;
-    --g2:     #00c832;
-    --gdim:   #00441a;
-    --gmute:  #122218;
-    --amber:  #ffb700;
-    --red:    #ff3c3c;
-    --text:   #b8d8b8;
-    --tdim:   #3d5e3d;
-  }
+/* ── header ───────────────────────────────────────────────── */
+header{
+  background:var(--bg2);border-bottom:2px solid var(--gdim);
+  height:42px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 16px;flex-shrink:0;
+}
+.logo{font-size:18px;font-weight:900;color:var(--green);letter-spacing:-1px;text-shadow:0 0 14px rgba(0,255,65,.5);}
+.logo em{color:var(--tdim);font-style:normal;}
+.logo small{font-size:9px;color:var(--tdim);font-weight:400;margin-left:6px;}
+.hinfo{font-size:9px;color:var(--tdim);text-align:right;line-height:1.7;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: monospace;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
+/* ── momentum strip ───────────────────────────────────────── */
+.mstrip{height:5px;background:linear-gradient(90deg,var(--red) 0%,#333 45%,#333 55%,var(--green) 100%);flex-shrink:0;position:relative;}
+.mind{position:absolute;top:-1px;width:4px;height:7px;background:#fff;border-radius:1px;box-shadow:0 0 6px #fff;transform:translateX(-50%);transition:left .35s ease;left:50%;}
+.mlab{position:absolute;top:6px;font-size:8px;color:var(--tdim);letter-spacing:1px;}
+.mlab.left{left:4px;}
+.mlab.right{right:4px;}
 
-  header {
-    background: var(--bg2);
-    border-bottom: 2px solid var(--gdim);
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    flex-shrink: 0;
-  }
-  .logo { font-size: 20px; font-weight: 900; color: var(--green); letter-spacing: -1px; text-shadow: 0 0 15px rgba(0,255,65,.5); }
-  .logo span { color: var(--tdim); }
-  .hinfo { font-size: 10px; color: var(--tdim); text-align:right; line-height:1.6; }
+/* ── main grid ────────────────────────────────────────────── */
+.main{flex:1;display:grid;grid-template-columns:200px 1fr 280px;overflow:hidden;min-height:0;}
 
-  .main {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 240px 1fr 280px;
-    overflow: hidden;
-  }
+/* ── sidebar ──────────────────────────────────────────────── */
+.sidebar{background:var(--panel);border-right:1px solid var(--border);overflow-y:auto;padding:10px 9px;display:flex;flex-direction:column;gap:10px;}
+.slabel{font-size:8px;letter-spacing:2px;color:var(--tdim);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--border);margin-bottom:3px;}
+.slabel2{font-size:8px;color:var(--tdim);display:block;margin-bottom:3px;letter-spacing:1px;}
+.fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
+.fbtn{background:var(--bg3);border:1px solid var(--border);color:var(--tdim);font-family:monospace;font-size:8px;font-weight:700;padding:5px 1px;cursor:pointer;text-align:center;transition:.12s;}
+.fbtn:hover{color:var(--text);border-color:var(--gdim);}
+.fbtn.active{background:var(--gmute);border-color:var(--g2);color:var(--green);}
+select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:10px;padding:4px 6px;outline:none;cursor:pointer;appearance:none;}
+.slrow{display:flex;gap:4px;align-items:center;}
+.slrow input{flex:1;accent-color:var(--g2);}
+.slval{font-size:9px;color:var(--green);width:12px;text-align:right;}
+.plist{display:flex;flex-direction:column;}
+.pitem{display:flex;align-items:center;gap:4px;padding:3px 2px;border-bottom:1px solid var(--border);font-size:10px;cursor:default;}
+.pitem:hover{background:var(--bg3);}
+.pnum{font-size:8px;color:var(--tdim);width:14px;text-align:right;}
+.pbadge{font-size:7px;font-weight:700;background:var(--gmute);color:var(--g2);border:1px solid var(--gdim);padding:1px 3px;min-width:22px;text-align:center;}
+.pname{flex:1;}
+.prtg{font-size:8px;color:var(--amber);}
+.pico{font-size:8px;width:10px;}
 
-  .sidebar {
-    background: var(--panel);
-    border-right: 1px solid var(--border);
-    overflow-y: auto;
-    padding: 14px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+/* ── center (pitch area) ──────────────────────────────────── */
+.center{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--bg);overflow:hidden;padding:8px;gap:8px;
+}
 
-  .slabel {
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--tdim);
-    text-transform: uppercase;
-    padding-bottom: 6px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 6px;
-  }
+/* minute + controls row */
+.topbar{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.minbox{font-size:12px;color:var(--tdim);letter-spacing:2px;}
+.minbox span{color:var(--green);font-size:16px;font-weight:900;}
 
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
-  }
+/* PITCH CONTAINER — fills available space, maintains 300:460 ratio */
+.pitch-outer{
+  position:relative;flex:1;width:100%;display:flex;align-items:center;justify-content:center;min-height:0;
+}
+.pitch{
+  background:#164d16;border:2px solid #256025;
+  position:relative;overflow:hidden;
+  /* size set by JS */
+}
+.pitch::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(180deg,transparent 0,transparent 38px,rgba(0,0,0,.08) 38px,rgba(0,0,0,.08) 76px);
+  pointer-events:none;z-index:0;
+}
+.pitch>svg,
+.pitch>canvas{position:absolute;inset:0;pointer-events:none;}
+#pitchSvg {z-index:1;}
+#heatSvg  {z-index:2;opacity:.5;}
+#passSvg  {z-index:3;}
+#trajSvg  {z-index:8;}
 
-  .fbtn {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--tdim);
-    font-family: monospace;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 7px 2px;
-    cursor: pointer;
-    text-align: center;
-    transition: .15s;
-  }
-  .fbtn:hover { color: var(--text); border-color: var(--gdim); }
-  .fbtn.active { background: var(--gmute); border-color: var(--g2); color: var(--green); }
+/* ball */
+.ball{
+  position:absolute;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff,#ccc);
+  border:1px solid #aaa;
+  box-shadow:0 0 8px rgba(255,255,255,.85),0 2px 5px rgba(0,0,0,.7);
+  transform:translate(-50%,-50%);z-index:12;pointer-events:none;
+  transition:left .16s linear,top .16s linear;
+}
 
-  select {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: monospace;
-    font-size: 12px;
-    padding: 6px 8px;
-    outline: none;
-    cursor: pointer;
-    appearance: none;
-  }
+/* player dots */
+.pdot{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:1px;z-index:10;}
+.pcirc{border-radius:50%;background:var(--g2);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;color:#000;box-shadow:0 0 6px rgba(0,200,50,.4);transition:box-shadow .15s,border-color .15s;}
+.pcirc.opp{background:var(--red);border-color:#ff7070;color:#fff;box-shadow:0 0 6px rgba(255,60,60,.4);}
+.pcirc.pressing{box-shadow:0 0 16px rgba(255,180,0,1)!important;border-color:var(--amber)!important;}
+.pcirc.running {box-shadow:0 0 16px rgba(50,200,255,1)!important;border-color:var(--blue)!important;}
+.ptag{font-size:7px;color:#fff;background:rgba(0,0,0,.82);padding:1px 3px;white-space:nowrap;}
 
-  .slabel2 { font-size: 9px; color: var(--tdim); letter-spacing: 1px; display: block; margin-bottom: 4px; }
+/* controls */
+.controls{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.btn-sim{background:var(--g2);color:#000;border:none;cursor:pointer;font-family:monospace;font-size:13px;font-weight:900;letter-spacing:1px;padding:9px 22px;transition:.14s;text-transform:uppercase;}
+.btn-sim:hover:not(:disabled){background:var(--green);}
+.btn-sim:disabled{opacity:.38;cursor:not-allowed;}
+.btn-sm{background:transparent;color:var(--tdim);border:1px solid var(--border);font-family:monospace;font-size:9px;padding:7px 10px;cursor:pointer;transition:.14s;}
+.btn-sm:hover{color:var(--text);border-color:var(--tdim);}
+.btn-sm.on{background:var(--gmute);color:var(--green);border-color:var(--gdim);}
 
-  .sl-row { display: flex; gap: 6px; align-items: center; }
-  .sl-row input { flex:1; accent-color: var(--g2); }
-  .sl-val { font-size: 11px; color: var(--green); width: 16px; text-align: right; }
+/* ── right panel ──────────────────────────────────────────── */
+.rpanel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.rhead{padding:10px 12px 8px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.scoreboard{display:flex;align-items:center;justify-content:center;gap:8px;margin:5px 0;}
+.tname{font-size:10px;font-weight:700;color:var(--tdim);text-align:center;max-width:60px;line-height:1.2;}
+.tname.my{color:var(--green);}
+.score{font-size:26px;font-weight:900;color:var(--green);letter-spacing:-2px;min-width:72px;text-align:center;text-shadow:0 0 14px rgba(0,255,65,.3);}
+.mstatus{text-align:center;font-size:8px;color:var(--tdim);letter-spacing:2px;margin-top:2px;}
+.mstatus.live{color:var(--green);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-  .plist { display: flex; flex-direction: column; }
-  .pitem {
-    display: flex; align-items: center; gap: 6px;
-    padding: 5px 4px;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px;
-    transition: .1s;
-  }
-  .pitem:hover { background: var(--bg3); }
-  .pnum { font-size: 9px; color: var(--tdim); width: 16px; text-align:right; }
-  .pbadge {
-    font-size: 8px; font-weight:700;
-    background: var(--gmute); color: var(--g2);
-    border: 1px solid var(--gdim);
-    padding: 1px 4px; min-width: 26px; text-align:center;
-  }
-  .pname { flex:1; }
-  .prtg { font-size: 10px; color: var(--amber); }
+/* tabs */
+.tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:6px 3px;text-align:center;font-size:8px;letter-spacing:1px;color:var(--tdim);cursor:pointer;border-bottom:2px solid transparent;transition:.13s;text-transform:uppercase;}
+.tab.active{color:var(--green);border-bottom-color:var(--green);}
+.tpane{display:none;flex:1;overflow-y:auto;flex-direction:column;}
+.tpane.active{display:flex;}
 
-  .center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    background: var(--bg);
-    padding: 16px;
-  }
+/* log */
+.log{flex:1;overflow-y:auto;padding:7px 9px;display:flex;flex-direction:column;gap:2px;}
+.lentry{display:flex;gap:5px;align-items:flex-start;padding:3px 0;border-bottom:1px solid rgba(24,41,24,.4);opacity:0;animation:fi .2s forwards;}
+@keyframes fi{to{opacity:1}}
+.lmin{font-size:8px;color:var(--tdim);width:20px;flex-shrink:0;margin-top:1px;}
+.lic{width:13px;flex-shrink:0;font-size:10px;}
+.ltxt{font-size:10px;line-height:1.4;flex:1;}
+.ltxt b{color:var(--green);}
+.ltxt.opp b{color:var(--red);}
+.ltxt.gmy{color:var(--green);font-weight:700;font-size:11px;}
+.ltxt.gopp{color:var(--red);font-weight:700;font-size:11px;}
+.ltxt.amb{color:var(--amber);font-size:9px;}
 
-  .pitch-wrap { position: relative; width: 300px; height: 460px; }
+/* stats */
+.stsec{padding:8px 11px;border-bottom:1px solid var(--border);}
+.xgrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.xgval{font-size:18px;font-weight:900;color:var(--amber);}
+.xglbl{font-size:8px;color:var(--tdim);letter-spacing:1px;margin-top:1px;}
+.barrow{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.barlbl{font-size:8px;color:var(--tdim);width:50px;text-align:right;flex-shrink:0;}
+.barwrap{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;position:relative;}
+.barmy{height:100%;background:var(--g2);border-radius:3px;position:absolute;right:50%;transition:width .4s;}
+.baropp{height:100%;background:var(--red);border-radius:3px;position:absolute;left:50%;transition:width .4s;}
+.barval{font-size:8px;width:40px;flex-shrink:0;color:var(--tdim);}
+.barval.hi{color:var(--green);}
 
-  .pitch {
-    width: 100%; height: 100%;
-    background: #174d17;
-    border: 2px solid #2a6a2a;
-    position: relative;
-    overflow: visible;
-  }
+/* player table */
+.ptab{width:100%;border-collapse:collapse;font-size:9px;}
+.ptab th{font-size:7px;color:var(--tdim);letter-spacing:1px;padding:4px 3px;text-align:center;border-bottom:1px solid var(--border);text-transform:uppercase;}
+.ptab td{padding:3px;text-align:center;border-bottom:1px solid rgba(24,41,24,.3);}
+.ptab td:first-child{text-align:left;}
+.ptab tr:hover td{background:var(--bg3);}
+.rhi{color:var(--green);font-weight:700;}
+.rmd{color:var(--amber);font-weight:700;}
+.rlo{color:var(--red);font-weight:700;}
 
-  .pitch::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      180deg, transparent 0, transparent 40px, rgba(0,0,0,.1) 40px, rgba(0,0,0,.1) 80px
-    );
-    pointer-events: none;
-  }
-
-  .pitch-svg {
-    position: absolute; inset: 0; width:100%; height:100%; pointer-events:none;
-  }
-
-  .ball {
-    position: absolute;
-    width: 14px; height: 14px;
-    background: #fff;
-    border-radius: 50%;
-    border: 2px solid #ccc;
-    box-shadow: 0 0 10px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.6);
-    transform: translate(-50%, -50%);
-    transition: left .55s ease, top .55s ease;
-    z-index: 10;
-    pointer-events: none;
-  }
-
-  .pdot {
-    position: absolute;
-    transform: translate(-50%, -50%);
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    z-index: 5;
-  }
-  .pcircle {
-    width: 24px; height: 24px; border-radius: 50%;
-    background: var(--g2); border: 2px solid var(--green);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 8px; font-weight: 700; color: #000;
-    box-shadow: 0 0 8px rgba(0,200,50,.4);
-    transition: .15s;
-    cursor: default;
-  }
-  .pcircle.opp { background: var(--red); border-color: #ff7070; color: #fff; box-shadow: 0 0 8px rgba(255,60,60,.4); }
-  .ptag {
-    font-size: 8px; color: #fff;
-    background: rgba(0,0,0,.75);
-    padding: 1px 3px; white-space: nowrap;
-  }
-
-  .controls { display: flex; gap: 10px; align-items: center; }
-
-  .btn-sim {
-    background: var(--g2); color: #000;
-    border: none; cursor: pointer;
-    font-family: monospace; font-size: 15px; font-weight: 900;
-    letter-spacing: 1px;
-    padding: 11px 28px;
-    transition: .15s;
-    text-transform: uppercase;
-  }
-  .btn-sim:hover:not(:disabled) { background: var(--green); }
-  .btn-sim:disabled { opacity: .45; cursor: not-allowed; }
-
-  .btn-rst {
-    background: transparent; color: var(--tdim);
-    border: 1px solid var(--border);
-    font-family: monospace; font-size: 11px;
-    padding: 9px 14px; cursor: pointer; transition: .15s;
-  }
-  .btn-rst:hover { color: var(--text); border-color: var(--tdim); }
-
-  .rpanel {
-    background: var(--panel);
-    border-left: 1px solid var(--border);
-    display: flex; flex-direction: column; overflow: hidden;
-  }
-
-  .rhead { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink:0; }
-
-  .scoreboard {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; margin: 8px 0;
-  }
-  .tname { font-size: 12px; font-weight:700; color: var(--tdim); text-align:center; max-width:70px; line-height:1.2; }
-  .tname.my { color: var(--green); }
-  .score {
-    font-size: 30px; font-weight: 900; color: var(--green);
-    letter-spacing: -2px; min-width: 80px; text-align: center;
-    text-shadow: 0 0 16px rgba(0,255,65,.3);
-  }
-  .mstatus { text-align:center; font-size: 9px; color: var(--tdim); letter-spacing:2px; margin-top:4px; }
-  .mstatus.live { color: var(--green); animation: blink 1s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
-
-  .stats-row {
-    display: none; gap: 0; padding: 8px 14px;
-    border-bottom: 1px solid var(--border); flex-shrink:0;
-  }
-  .sitem { flex:1; text-align:center; }
-  .sval { font-size: 13px; font-weight:700; color: var(--text); }
-  .sval.hi { color: var(--green); }
-  .sname { font-size: 9px; color: var(--tdim); letter-spacing:1px; margin-top:2px; }
-
-  .poss-row {
-    display: none; padding: 8px 14px;
-    border-bottom: 1px solid var(--border); flex-shrink:0;
-  }
-  .poss-labels { display:flex; justify-content:space-between; font-size:9px; color:var(--tdim); margin-bottom:5px; }
-  .poss-labels .pv { color: var(--text); }
-  .poss-bar { height:4px; background:var(--bg3); border-radius:2px; overflow:hidden; }
-  .poss-fill { height:100%; background: linear-gradient(90deg, var(--g2), var(--green)); transition: width .5s; }
-
-  .log {
-    flex:1; overflow-y:auto; padding:10px 14px;
-    display: flex; flex-direction:column; gap:3px;
-  }
-
-  .log-entry {
-    display: flex; gap: 8px; align-items: flex-start;
-    padding: 4px 0; border-bottom: 1px solid rgba(28,46,29,.5);
-    opacity: 0; animation: fadeIn .3s forwards;
-  }
-  @keyframes fadeIn { to { opacity:1; } }
-
-  .lmin { font-size:10px; color:var(--tdim); width:24px; flex-shrink:0; margin-top:1px; }
-  .lic  { width:16px; flex-shrink:0; font-size:12px; }
-  .ltxt { font-size:12px; line-height:1.4; flex:1; }
-  .ltxt b { color: var(--green); }
-  .ltxt.opp b { color: var(--red); }
-  .ltxt.gmy { color: var(--green); font-weight:700; font-size:13px; }
-  .ltxt.gopp { color: var(--red); font-weight:700; font-size:13px; }
-
-  .empty {
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    height:100%; color:var(--tdim); font-size:10px; letter-spacing:2px; gap:10px;
-    text-transform:uppercase;
-  }
-  .empty .big { font-size:42px; opacity:.2; }
-
-  ::-webkit-scrollbar { width:3px; }
-  ::-webkit-scrollbar-thumb { background: var(--gdim); }
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--tdim);font-size:8px;letter-spacing:2px;gap:8px;text-transform:uppercase;}
+.empty .big{font-size:34px;opacity:.14;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--gdim);}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">FM<span>/</span>26</div>
+  <div class="logo">FM<em>/</em>26<small>advanced engine</small></div>
   <div class="hinfo">시즌 2025/26 · 1라운드<br>홈 경기</div>
 </header>
+
+<div class="mstrip">
+  <div class="mind" id="mind"></div>
+  <span class="mlab left">상대 우위</span>
+  <span class="mlab right">우리 우위</span>
+</div>
 
 <div class="main">
 
@@ -308,73 +196,50 @@
   <div class="sidebar">
     <div>
       <div class="slabel">포메이션</div>
-      <div class="form-grid" id="fgrid"></div>
+      <div class="fgrid" id="fgrid"></div>
     </div>
-
     <div>
       <div class="slabel">전술</div>
-      <div style="margin-bottom:10px">
-        <span class="slabel2">플레이 스타일</span>
-        <select id="pstyle">
-          <option>점유 축구</option>
-          <option>빠른 역습</option>
-          <option>압박 전진</option>
-          <option>수비 후 역습</option>
-          <option>직접 롱볼</option>
-        </select>
+      <div style="margin-bottom:7px"><span class="slabel2">플레이 스타일</span>
+        <select id="pstyle"><option>점유 축구</option><option>빠른 역습</option><option>압박 전진</option><option>수비 후 역습</option><option>직접 롱볼</option></select>
       </div>
-      <div style="margin-bottom:10px">
-        <span class="slabel2">압박 강도</span>
-        <div class="sl-row">
-          <input type="range" id="press" min="1" max="10" value="5">
-          <span class="sl-val" id="pressv">5</span>
-        </div>
+      <div style="margin-bottom:7px"><span class="slabel2">압박 강도</span>
+        <div class="slrow"><input type="range" id="press" min="1" max="10" value="6"><span class="slval" id="pressv">6</span></div>
       </div>
-      <div style="margin-bottom:10px">
-        <span class="slabel2">수비 라인</span>
-        <select id="defline">
-          <option>깊은 수비</option>
-          <option>중간</option>
-          <option>높은 수비</option>
-        </select>
+      <div style="margin-bottom:7px"><span class="slabel2">수비 라인</span>
+        <select id="defline"><option>깊은 수비</option><option>중간</option><option>높은 수비</option></select>
       </div>
-      <div>
-        <span class="slabel2">템포</span>
-        <div class="sl-row">
-          <input type="range" id="tempo" min="1" max="10" value="6">
-          <span class="sl-val" id="tempov">6</span>
-        </div>
+      <div><span class="slabel2">템포</span>
+        <div class="slrow"><input type="range" id="tempo" min="1" max="10" value="6"><span class="slval" id="tempov">6</span></div>
       </div>
     </div>
-
     <div>
       <div class="slabel">선수단</div>
       <div class="plist" id="plist"></div>
     </div>
   </div>
 
-  <!-- PITCH -->
+  <!-- CENTER: PITCH -->
   <div class="center">
-    <div class="pitch-wrap">
+    <div class="topbar">
+      <div class="minbox">경기시간 <span id="minDisp">0</span>'</div>
+    </div>
+
+    <div class="pitch-outer" id="pitchOuter">
       <div class="pitch" id="pitch">
-        <svg class="pitch-svg" viewBox="0 0 300 460" fill="none" stroke="#2a6a2a" stroke-width="1.2">
-          <rect x="1" y="1" width="298" height="458"/>
-          <line x1="1" y1="230" x2="299" y2="230"/>
-          <circle cx="150" cy="230" r="46"/>
-          <circle cx="150" cy="230" r="2.5" fill="#2a6a2a"/>
-          <rect x="66" y="1" width="168" height="88"/>
-          <rect x="66" y="371" width="168" height="88"/>
-          <rect x="108" y="1" width="84" height="38"/>
-          <rect x="108" y="421" width="84" height="38"/>
-          <circle cx="150" cy="74" r="2.5" fill="#2a6a2a"/>
-          <circle cx="150" cy="386" r="2.5" fill="#2a6a2a"/>
-        </svg>
+        <svg id="pitchSvg"></svg>
+        <canvas id="heatCanvas"></canvas>
+        <svg id="passSvg"></svg>
+        <svg id="trajSvg"></svg>
         <div class="ball" id="ball" style="left:50%;top:50%"></div>
       </div>
     </div>
+
     <div class="controls">
       <button class="btn-sim" id="simBtn">⚽ 경기 시작</button>
-      <button class="btn-rst" id="rstBtn">초기화</button>
+      <button class="btn-sm" id="rstBtn">초기화</button>
+      <button class="btn-sm" id="heatBtn">히트맵</button>
+      <button class="btn-sm" id="passBtn">패스맵</button>
     </div>
   </div>
 
@@ -389,561 +254,519 @@
       </div>
       <div class="mstatus" id="mstatus">경기 전</div>
     </div>
-
-    <div class="stats-row" id="statsRow">
-      <div class="sitem"><div class="sval hi" id="sShot">0</div><div class="sname">슈팅</div></div>
-      <div class="sitem"><div class="sval" id="sOShot">0</div><div class="sname">상대슈팅</div></div>
-      <div class="sitem"><div class="sval hi" id="sPass">0</div><div class="sname">패스</div></div>
+    <div class="tabs">
+      <div class="tab active" data-tab="log">중계</div>
+      <div class="tab" data-tab="stats">스탯</div>
+      <div class="tab" data-tab="players">선수</div>
     </div>
-
-    <div class="poss-row" id="possRow">
-      <div class="poss-labels">
-        <span class="pv" id="possMyV">50%</span>
-        <span>점유율</span>
-        <span id="possOppV">50%</span>
+    <div class="tpane active" id="tlog">
+      <div class="log" id="log">
+        <div class="empty"><div class="big">🏟</div><div>경기 시작을 눌러주세요</div></div>
       </div>
-      <div class="poss-bar"><div class="poss-fill" id="possFill" style="width:50%"></div></div>
     </div>
-
-    <div class="log" id="log">
-      <div class="empty">
-        <div class="big">🏟</div>
-        <div>경기 시작을 눌러주세요</div>
+    <div class="tpane" id="tstats">
+      <div class="stsec">
+        <div class="xgrow">
+          <div style="text-align:center"><div class="xgval" id="xgMy">0.00</div><div class="xglbl">우리팀 xG</div></div>
+          <div style="font-size:8px;color:var(--tdim)">기대 골</div>
+          <div style="text-align:center"><div class="xgval" id="xgOpp">0.00</div><div class="xglbl">상대 xG</div></div>
+        </div>
+      </div>
+      <div class="stsec" id="statBars"></div>
+    </div>
+    <div class="tpane" id="tplayers">
+      <div style="padding:7px 10px;overflow-x:auto;">
+        <table class="ptab">
+          <thead><tr><th>선수</th><th>슈팅</th><th>패스</th><th>터치</th><th>평점</th></tr></thead>
+          <tbody id="ptbody"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
 </div>
 
+<script src="engine.js"></script>
 <script>
-// ---- AI SYSTEM (Python → JS 포팅) ----
-function normalRandom(mean, std){
-  // Box-Muller
-  var u = 1 - Math.random(), v = Math.random();
-  var z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
-  return mean + z * std;
-}
+// ============================================================
+//  RENDERER — DOM + canvas drawing
+// ============================================================
+var PW=300, PH=460;
+var pitchW=PW, pitchH=PH;
+var viewMode='none'; // 'heat' | 'pass' | 'none'
+var heatmapAccum=[];
+var ICONS={gmy:'⚽',gopp:'💥',shot:'🎯',save:'🧤',pass:'🔄',press:'💨',foul:'🟡',danger:'⚠️',amb:'📊'};
 
-function softmax(scores){
-  var max = Math.max(...scores);
-  var exps = scores.map(function(s){ return Math.exp(s - max); });
-  var sum  = exps.reduce(function(a,b){ return a+b; }, 0);
-  return exps.map(function(e){ return e/sum; });
-}
+// ── pitch sizing ─────────────────────────────────────────────
+function sizePitch(){
+  var outer=document.getElementById('pitchOuter');
+  var ow=outer.clientWidth-16, oh=outer.clientHeight-16;
+  // maintain 300:460 aspect ratio
+  var scaleH=oh/PH, scaleW=ow/PW;
+  var scale=Math.min(scaleH,scaleW,1.4); // allow up to 1.4x
+  pitchW=Math.round(PW*scale);
+  pitchH=Math.round(PH*scale);
 
-function weightedChoice(items, probs){
-  var r = Math.random(), cum = 0;
-  for(var i=0;i<items.length;i++){
-    cum += probs[i];
-    if(r < cum) return items[i];
-  }
-  return items[items.length-1];
-}
+  var pitch=document.getElementById('pitch');
+  pitch.style.width=pitchW+'px';
+  pitch.style.height=pitchH+'px';
 
-var ACTIONS = ["PASS","SHOOT","DRIBBLE","HOLD","THROUGH","LONGSHOT"];
-
-var ACTION_WEIGHTS = {
-  PASS:     {passing:0.5, vision:0.3, technique:0.2},
-  SHOOT:    {finishing:0.5, long_shots:0.2, technique:0.3},
-  DRIBBLE:  {dribbling:0.5, agility:0.3, technique:0.2},
-  HOLD:     {strength:0.4, balance:0.4, composure:0.2},
-  THROUGH:  {vision:0.5, passing:0.3, technique:0.2},
-  LONGSHOT: {long_shots:0.6, technique:0.2, finishing:0.2}
-};
-
-function makeAIPlayer(name, pos, rtg, personality){
-  var base = rtg;
-  return {
-    name: name, pos: pos, rtg: rtg,
-    attributes: {
-      passing:    clamp(base + rndF(-8,8), 40, 99),
-      finishing:  clamp(base + rndF(-10,10), 40, 99),
-      dribbling:  clamp(base + rndF(-8,8), 40, 99),
-      technique:  clamp(base + rndF(-6,6), 40, 99),
-      vision:     clamp(base + rndF(-8,8), 40, 99),
-      long_shots: clamp(base + rndF(-12,12), 40, 99),
-      strength:   clamp(base + rndF(-10,10), 40, 99),
-      balance:    clamp(base + rndF(-8,8), 40, 99),
-      agility:    clamp(base + rndF(-8,8), 40, 99),
-      composure:  clamp(base + rndF(-6,6), 40, 99)
-    },
-    action_weights: ACTION_WEIGHTS,
-    mentality:        rnd(5,15),
-    role_familiarity: clamp(base - 10, 60, 100),
-    mental_resilience:clamp(base - 5,  50, 100),
-    urgency:          Math.random() * 1.5 + 0.5,
-    confidence:       clamp(base - 5,  50, 100),
-    pressure:         Math.random() * 30,
-    morale:           clamp(base - 10, 50, 100),
-    panic:            Math.random() * 20,
-    fatigue:          Math.random() * 10,
-    injury_risk:      Math.random() * 5,
-    personality:      personality || pick(["NORMAL","SELFISH","BIGMATCH","NERVOUS"]),
-    last5_rating:     Math.random() * 2 + 6
-  };
-}
-
-function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
-function rndF(a,b){ return Math.random()*(b-a)+a; }
-
-function playerAIDecision(player, teamMentality, opponent, context, environment){
-  var scores = ACTIONS.map(function(action){
-    var weights = player.action_weights[action];
-    var base_ability = 0;
-    for(var k in weights) base_ability += (player.attributes[k]||50) * weights[k];
-    base_ability /= 100;
-
-    var tactical_fit = (1 - Math.abs(player.mentality - teamMentality) / 20)
-                     * (player.role_familiarity / 100);
-
-    var score_impact  = 1 + (context.goal_diff * player.mental_resilience / 200);
-    var time_pressure = 1 + (context.minute / 120) * player.urgency;
-    var context_factor = score_impact * time_pressure;
-
-    var emotion_factor = (player.confidence / 100)
-                       * (1 - player.pressure / 200)
-                       * (player.morale / 100)
-                       * (1 - player.panic / 150);
-
-    var fatigue_penalty  = 1 - (player.fatigue * player.fatigue / 10000);
-    var injury_modifier  = 1 - (player.injury_risk * 0.01);
-    var physical_factor  = fatigue_penalty * injury_modifier;
-
-    var defensive_pressure = opponent.pressing * (1 - (player.attributes.balance||50) / 200);
-    var tactical_counter   = 1 + (opponent.tactic_counter / 100);
-    var opponent_factor    = (1 - defensive_pressure / 100) * tactical_counter;
-
-    var personality_factor = 1.0;
-    if(player.personality==='SELFISH'  && action==='SHOOT') personality_factor *= 1.15;
-    if(player.personality==='SELFISH'  && action==='PASS')  personality_factor *= 0.9;
-    if(player.personality==='BIGMATCH' && context.big_match) personality_factor *= 1.1;
-    if(player.personality==='NERVOUS'  && context.big_match) personality_factor *= 0.85;
-
-    var form_factor = 1 + ((player.last5_rating - 6.5) / 10);
-
-    var home_boost      = 1 + (environment.crowd / 200);
-    var weather_penalty = 1 - (environment.weather / 100);
-    var pitch_penalty   = 1 - (environment.pitch / 150);
-    var environment_factor = home_boost * weather_penalty * pitch_penalty;
-
-    var random_factor = normalRandom(1.0, 0.05);
-
-    var total = base_ability * tactical_fit * context_factor * emotion_factor
-              * physical_factor * opponent_factor * personality_factor
-              * form_factor * environment_factor * random_factor;
-
-    return Math.max(total, 0.01);
+  // set all SVG viewboxes
+  ['pitchSvg','passSvg','trajSvg'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.setAttribute('viewBox','0 0 '+pitchW+' '+pitchH);
+    el.setAttribute('width',pitchW);
+    el.setAttribute('height',pitchH);
   });
 
-  var probs  = softmax(scores);
-  var chosen = weightedChoice(ACTIONS, probs);
-  var success_chance = probs[ACTIONS.indexOf(chosen)];
-  var success = Math.random() < success_chance;
+  var hc=document.getElementById('heatCanvas');
+  hc.width=pitchW; hc.height=pitchH;
 
-  // 피드백 업데이트
-  if(success){ player.confidence += 2; player.morale += 1; }
-  else        { player.confidence -= 1.5; player.panic += 1; }
-  player.fatigue += rndF(0.5, 1.5);
+  var ball=document.getElementById('ball');
+  var bs=Math.round(pitchW*0.052);
+  ball.style.width=bs+'px'; ball.style.height=bs+'px';
 
-  return { action: chosen, success: success, probs: probs };
+  drawPitchLines();
+  renderFormation();
 }
 
-// ---- PLAYER DATA ----
-var PLAYERS = [
-  makeAIPlayer('김준혁', 'GK',  82, 'NORMAL'),
-  makeAIPlayer('박민준', 'RB',  76, 'NORMAL'),
-  makeAIPlayer('이도현', 'CB',  80, 'BIGMATCH'),
-  makeAIPlayer('최현우', 'CB',  78, 'NORMAL'),
-  makeAIPlayer('정재원', 'LB',  75, 'NORMAL'),
-  makeAIPlayer('황인범', 'CM',  83, 'BIGMATCH'),
-  makeAIPlayer('손준호', 'CAM', 85, 'SELFISH'),
-  makeAIPlayer('이강인', 'CM',  84, 'BIGMATCH'),
-  makeAIPlayer('엄지성', 'LW',  79, 'NERVOUS'),
-  makeAIPlayer('조규성', 'ST',  81, 'SELFISH'),
-  makeAIPlayer('황희찬', 'RW',  83, 'BIGMATCH')
+// ── pitch lines ──────────────────────────────────────────────
+function drawPitchLines(){
+  var W=pitchW,H=pitchH;
+  var s=document.getElementById('pitchSvg');
+  s.innerHTML=[
+    '<g fill="none" stroke="#256025" stroke-width="1.2">',
+    '<rect x="1" y="1" width="'+(W-2)+'" height="'+(H-2)+'"/>',
+    '<line x1="1" y1="'+(H*.5)+'" x2="'+(W-1)+'" y2="'+(H*.5)+'"/>',
+    '<circle cx="'+(W*.5)+'" cy="'+(H*.5)+'" r="'+(W*.154)+'"/>',
+    '<circle cx="'+(W*.5)+'" cy="'+(H*.5)+'" r="2" fill="#256025"/>',
+    '<rect x="'+(W*.218)+'" y="1" width="'+(W*.564)+'" height="'+(H*.19)+'"/>',
+    '<rect x="'+(W*.218)+'" y="'+(H*.81)+'" width="'+(W*.564)+'" height="'+(H*.19)+'"/>',
+    '<rect x="'+(W*.36)+'" y="1" width="'+(W*.28)+'" height="'+(H*.082)+'"/>',
+    '<rect x="'+(W*.36)+'" y="'+(H*.918)+'" width="'+(W*.28)+'" height="'+(H*.082)+'"/>',
+    '<circle cx="'+(W*.5)+'" cy="'+(H*.162)+'" r="2" fill="#256025"/>',
+    '<circle cx="'+(W*.5)+'" cy="'+(H*.838)+'" r="2" fill="#256025"/>',
+    '</g>'
+  ].join('');
+}
+
+// ── formation render ─────────────────────────────────────────
+function renderFormation(){
+  var pitch=document.getElementById('pitch');
+  pitch.querySelectorAll('.pdot').forEach(function(e){e.remove();});
+
+  var curF=document.querySelector('.fbtn.active');
+  var fname=curF?curF.dataset.f:'4-4-2';
+  var pos=FM26Engine.FORMATIONS[fname];
+  if(!pos) return;
+  var sq=FM26Engine.State.players||FM26Engine.makeSquad();
+  var op=FM26Engine.State.opps  ||FM26Engine.makeOppSquad();
+
+  pos.forEach(function(p,i){
+    var pl=sq[i]||{num:i+1,name:'?'};
+    pitch.appendChild(makeDot(p[0],p[1],pl.num,pl.name,false,i));
+  });
+  pos.forEach(function(p,i){
+    var op2=op[i]||{name:'?'};
+    pitch.appendChild(makeDot(p[0],100-p[1],i+1,op2.name,true,i));
+  });
+}
+
+function makeDot(xp,yp,num,name,isOpp,idx){
+  var sz=Math.round(pitchW*0.088);
+  var dot=document.createElement('div');
+  dot.className='pdot';
+  dot.id=(isOpp?'opp':'my')+idx;
+  dot.style.left=xp+'%'; dot.style.top=yp+'%';
+  dot.style.transition='left .28s ease,top .28s ease';
+
+  var c=document.createElement('div');
+  c.className='pcirc'+(isOpp?' opp':'');
+  c.style.width=sz+'px'; c.style.height=sz+'px';
+  c.style.fontSize=Math.round(sz*.33)+'px';
+  c.textContent=num;
+
+  var t=document.createElement('div');
+  t.className='ptag';
+  t.textContent=name.length>4?name.slice(0,4):name;
+
+  dot.appendChild(c); dot.appendChild(t);
+  return dot;
+}
+
+// ── trajectory animation ─────────────────────────────────────
+function drawTrajectory(x1p,y1p,x2p,y2p,type,onDone){
+  var svg=document.getElementById('trajSvg');
+  var x1=x1p/100*pitchW, y1=y1p/100*pitchH;
+  var x2=x2p/100*pitchW, y2=y2p/100*pitchH;
+  var col=type==='SHOOT'||type==='LONGSHOT'?'#ffb700':type==='THROUGH'?'#33ccff':'#00c832';
+  var lift=type==='LONGSHOT'?-65:type==='SHOOT'?-35:-18;
+  var mx=(x1+x2)*.5, my=(y1+y2)*.5+lift;
+
+  var path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M'+x1+','+y1+' Q'+mx+','+my+' '+x2+','+y2);
+  path.setAttribute('fill','none');
+  path.setAttribute('stroke',col);
+  path.setAttribute('stroke-width',type==='SHOOT'||type==='LONGSHOT'?2.5:1.8);
+  path.setAttribute('stroke-linecap','round');
+  path.setAttribute('opacity','0');
+  svg.appendChild(path);
+
+  // animate: fade in draw via strokeDashoffset
+  var len=path.getTotalLength()||120;
+  path.setAttribute('stroke-dasharray',len);
+  path.setAttribute('stroke-dashoffset',len);
+
+  requestAnimationFrame(function(){
+    path.style.transition='stroke-dashoffset .22s ease, opacity .1s';
+    path.setAttribute('opacity','0.9');
+    path.style.strokeDashoffset='0';
+  });
+
+  // move ball
+  var ball=document.getElementById('ball');
+  ball.style.transition='left .22s linear,top .22s linear';
+  ball.style.left=x2p+'%'; ball.style.top=y2p+'%';
+
+  setTimeout(function(){
+    path.style.transition='opacity .3s';
+    path.setAttribute('opacity','0');
+    setTimeout(function(){
+      if(svg.contains(path)) svg.removeChild(path);
+      if(onDone) onDone();
+    },300);
+  },260);
+}
+
+// ── heatmap ──────────────────────────────────────────────────
+function drawHeatmap(data){
+  var canvas=document.getElementById('heatCanvas');
+  var ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,pitchW,pitchH);
+  data.forEach(function(pt){
+    var x=pt.x/100*pitchW, y=pt.y/100*pitchH;
+    var r=pitchW*.09;
+    var g=ctx.createRadialGradient(x,y,0,x,y,r);
+    var col=pt.team==='my'?'0,200,50':'255,60,60';
+    g.addColorStop(0,'rgba('+col+',.4)');
+    g.addColorStop(1,'rgba('+col+',0)');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  });
+}
+function clearHeat(){
+  var ctx=document.getElementById('heatCanvas').getContext('2d');
+  ctx.clearRect(0,0,pitchW,pitchH);
+}
+
+// ── pass map ─────────────────────────────────────────────────
+function drawPassMap(data,formation){
+  var svg=document.getElementById('passSvg');
+  svg.innerHTML='';
+  var pos=FM26Engine.FORMATIONS[formation]||FM26Engine.FORMATIONS['4-4-2'];
+  var counts={};
+  data.forEach(function(p){
+    var k=p.team+':'+p.from+'>'+p.to;
+    counts[k]=(counts[k]||0)+1;
+  });
+  Object.keys(counts).forEach(function(k){
+    var t=k.split(':');var team=t[0];
+    var pair=t[1].split('>');var fi=+pair[0],ti=+pair[1];
+    var fp=pos[fi],tp=pos[ti];
+    if(!fp||!tp) return;
+    var x1=fp[0]/100*pitchW, y1=(team==='my'?fp[1]:100-fp[1])/100*pitchH;
+    var x2=tp[0]/100*pitchW, y2=(team==='my'?tp[1]:100-tp[1])/100*pitchH;
+    var line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke',team==='my'?'rgba(0,200,50,.75)':'rgba(255,60,60,.75)');
+    line.setAttribute('stroke-width',Math.min(counts[k]*.8+0.5,5));
+    svg.appendChild(line);
+  });
+  pos.forEach(function(p,i){
+    ['my','opp'].forEach(function(team){
+      var x=p[0]/100*pitchW, y=(team==='my'?p[1]:100-p[1])/100*pitchH;
+      var c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',4);
+      c.setAttribute('fill',team==='my'?'#00c832':'#ff3c3c');
+      c.setAttribute('opacity','.85');
+      svg.appendChild(c);
+    });
+  });
+}
+function clearPass(){document.getElementById('passSvg').innerHTML='';}
+
+// ── player dot state ─────────────────────────────────────────
+function setDotState(idx,isOpp,state){
+  var el=document.getElementById((isOpp?'opp':'my')+idx);
+  if(!el) return;
+  var c=el.querySelector('.pcirc');
+  c.classList.remove('pressing','running');
+  if(state==='PRESS') c.classList.add('pressing');
+  if(state==='RUN')   c.classList.add('running');
+}
+
+// ── tick update ──────────────────────────────────────────────
+function onTick(data){
+  var ball=document.getElementById('ball');
+  ball.style.left=data.ballX+'%'; ball.style.top=data.ballY+'%';
+  document.getElementById('minDisp').textContent=data.minute;
+
+  // apply positioning
+  data.positions.forEach(function(pos,i){
+    if(!pos) return;
+    var isOpp=(i%2===1);
+    var idx=Math.floor(i/2);
+    var el=document.getElementById((isOpp?'opp':'my')+idx);
+    if(!el) return;
+    el.style.left=pos.x+'%'; el.style.top=pos.y+'%';
+    setDotState(idx,isOpp,pos.state);
+  });
+}
+
+// ── event update ─────────────────────────────────────────────
+function onEvent(data){
+  var ev=data.ev;
+
+  // score
+  document.getElementById('score').textContent=data.myScore+' : '+data.oppScore;
+
+  // momentum
+  document.getElementById('mind').style.left=(data.momentum*100)+'%';
+
+  // xG
+  document.getElementById('xgMy').textContent=data.myXG.toFixed(2);
+  document.getElementById('xgOpp').textContent=data.myXG!==undefined?data.oppXG.toFixed(2):'0.00';
+
+  // stat bars
+  updateStatBars(data);
+
+  // trajectory
+  if(ev.fbx!==undefined&&ev.traj){
+    drawTrajectory(ev.fbx,ev.fby,ev.bx,ev.by,ev.traj);
+  } else if(ev.bx){
+    var ball=document.getElementById('ball');
+    ball.style.left=ev.bx+'%'; ball.style.top=ev.by+'%';
+  }
+
+  // log
+  addLog(ev.min,ev.type,ev.text);
+  if(data.fatigueWarning) addLog(ev.min,'shot',data.fatigueWarning);
+  if(data.momentumMsg)    addLog(ev.min,'amb',data.momentumMsg);
+
+  // overlays
+  if(viewMode==='heat') drawHeatmap(data.heatmap);
+  if(viewMode==='pass'){
+    var f=document.querySelector('.fbtn.active');
+    drawPassMap(data.passmap,f?f.dataset.f:'4-4-2');
+  }
+
+  // player table (throttle: every 5th event)
+  updatePlayerTable(data.players);
+}
+
+// ── log ──────────────────────────────────────────────────────
+var LOGCLS={gmy:'gmy',gopp:'gopp',shot:'',save:'opp',pass:'',press:'',foul:'',danger:'opp',amb:'amb'};
+function addLog(min,type,text){
+  var log=document.getElementById('log');
+  if(log.querySelector('.empty')) log.innerHTML='';
+  var e=document.createElement('div');
+  e.className='lentry';
+  var t=text;
+  var allPlayers=(FM26Engine.State.players||[]).concat(FM26Engine.State.opps||[]);
+  allPlayers.forEach(function(p){t=t.split(p.name).join('<b>'+p.name+'</b>');});
+  e.innerHTML='<span class="lmin">'+min+"'</span>"
+    +'<span class="lic">'+(ICONS[type]||'·')+'</span>'
+    +'<span class="ltxt '+(LOGCLS[type]||'')+'">'+t+'</span>';
+  log.appendChild(e);
+  log.scrollTop=log.scrollHeight;
+}
+
+// ── stat bars ────────────────────────────────────────────────
+var STATDEFS=[
+  {k:'shots', lbl:'슈팅',  my:function(d){return d.myShots;},  opp:function(d){return d.oppShots;}},
+  {k:'passes',lbl:'패스',  my:function(d){return d.myPasses;}, opp:function(d){return d.oppPasses;}},
 ];
-// num 필드 추가
-var PLAYER_NUMS = [1,2,5,6,3,8,10,7,11,9,18];
-PLAYERS.forEach(function(p,i){ p.num = PLAYER_NUMS[i]; });
+function buildStatBars(){
+  var div=document.getElementById('statBars');
+  div.innerHTML='';
+  STATDEFS.forEach(function(sd){
+    var row=document.createElement('div');
+    row.className='barrow';
+    row.innerHTML='<div class="barval hi" id="bv_my_'+sd.k+'">0</div>'
+      +'<div class="barwrap"><div class="barmy" id="bm_'+sd.k+'" style="width:0"></div><div class="baropp" id="bo_'+sd.k+'" style="width:0"></div></div>'
+      +'<div class="barlbl">'+sd.lbl+'</div>'
+      +'<div class="barval" id="bv_opp_'+sd.k+'">0</div>';
+    div.appendChild(row);
+  });
+}
+function updateStatBars(d){
+  STATDEFS.forEach(function(sd){
+    var mv=sd.my(d),ov=sd.opp(d),tot=mv+ov||1;
+    var mE=document.getElementById('bv_my_'+sd.k);
+    var oE=document.getElementById('bv_opp_'+sd.k);
+    var bmE=document.getElementById('bm_'+sd.k);
+    var boE=document.getElementById('bo_'+sd.k);
+    if(!mE) return;
+    mE.textContent=mv; oE.textContent=ov;
+    bmE.style.width=(mv/tot*50)+'%'; boE.style.width=(ov/tot*50)+'%';
+  });
+}
 
-var OPPS = [
-  makeAIPlayer('고스',    'GK',  80, 'NORMAL'),
-  makeAIPlayer('리베라',  'RB',  75, 'NORMAL'),
-  makeAIPlayer('마르케스','CB',  82, 'BIGMATCH'),
-  makeAIPlayer('페라리',  'CB',  79, 'NORMAL'),
-  makeAIPlayer('벤테케',  'LB',  76, 'NORMAL'),
-  makeAIPlayer('비달',    'CM',  81, 'SELFISH'),
-  makeAIPlayer('카세미로','CM',  83, 'BIGMATCH'),
-  makeAIPlayer('알론소',  'CAM', 82, 'NORMAL'),
-  makeAIPlayer('페드리',  'LW',  84, 'BIGMATCH'),
-  makeAIPlayer('모라타',  'ST',  80, 'SELFISH'),
-  makeAIPlayer('레바',    'RW',  82, 'NERVOUS')
-];
+// ── player table ─────────────────────────────────────────────
+function updatePlayerTable(players){
+  var tbody=document.getElementById('ptbody');
+  if(!tbody||!players) return;
+  tbody.innerHTML='';
+  players.forEach(function(p){
+    var r=p.ms.rating.toFixed(1);
+    var cls=parseFloat(r)>=7.5?'rhi':parseFloat(r)>=6.5?'rmd':'rlo';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+p.name+'</td><td>'+p.ms.shots+'</td><td>'+p.ms.passes+'</td><td>'+p.ms.touches+'</td><td class="'+cls+'">'+r+'</td>';
+    tbody.appendChild(tr);
+  });
+}
 
-var FORMATIONS = {
-  '4-4-2':   [[50,92],[82,76],[60,70],[40,70],[18,76],[82,53],[60,48],[40,48],[18,53],[38,28],[62,28]],
-  '4-3-3':   [[50,92],[82,76],[60,70],[40,70],[18,76],[65,52],[50,46],[35,52],[20,26],[50,20],[80,26]],
-  '4-2-3-1': [[50,92],[82,76],[60,70],[40,70],[18,76],[65,60],[35,60],[80,43],[50,38],[20,43],[50,23]],
-  '3-5-2':   [[50,92],[65,73],[50,68],[35,73],[85,56],[63,48],[50,43],[37,48],[15,56],[38,26],[62,26]],
-  '5-3-2':   [[50,92],[88,70],[68,76],[50,78],[32,76],[12,70],[65,52],[50,46],[35,52],[38,26],[62,26]],
-  '3-4-3':   [[50,92],[65,76],[50,70],[35,76],[82,54],[60,48],[40,48],[18,54],[20,26],[50,20],[80,26]]
-};
-
-var curFormation = '4-4-2';
-var simRunning = false;
-var myScore=0, oppScore=0, myShots=0, oppShots=0, myPasses=0;
-
-function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
-
+// ── formation buttons ─────────────────────────────────────────
 function buildFormationBtns(){
-  var grid = document.getElementById('fgrid');
-  grid.innerHTML = '';
-  Object.keys(FORMATIONS).forEach(function(f){
-    var btn = document.createElement('button');
-    btn.className = 'fbtn' + (f===curFormation?' active':'');
-    btn.textContent = f;
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.fbtn').forEach(function(b){ b.classList.remove('active'); });
+  var grid=document.getElementById('fgrid');
+  grid.innerHTML='';
+  Object.keys(FM26Engine.FORMATIONS).forEach(function(f,i){
+    var btn=document.createElement('button');
+    btn.className='fbtn'+(i===0?' active':'');
+    btn.textContent=f; btn.dataset.f=f;
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('.fbtn').forEach(function(b){b.classList.remove('active');});
       btn.classList.add('active');
-      curFormation = f;
-      renderPitch();
+      renderFormation();
     });
     grid.appendChild(btn);
   });
 }
 
+// ── player sidebar ────────────────────────────────────────────
 function buildPlayerList(){
-  var list = document.getElementById('plist');
-  list.innerHTML = PLAYERS.map(function(p){
-    return '<div class="pitem"><span class="pnum">'+p.num+'</span><span class="pbadge">'+p.pos+'</span><span class="pname">'+p.name+'</span><span class="prtg">'+p.rtg+'</span></div>';
+  FM26Engine.resetState();
+  var list=document.getElementById('plist');
+  var ico={BIGMATCH:'💪',SELFISH:'😤',NERVOUS:'😰',NORMAL:'😐'};
+  list.innerHTML=FM26Engine.State.players.map(function(p){
+    return '<div class="pitem">'
+      +'<span class="pnum">'+p.num+'</span>'
+      +'<span class="pbadge">'+p.pos+'</span>'
+      +'<span class="pname">'+p.name+'</span>'
+      +'<span class="pico">'+(ico[p.personality]||'😐')+'</span>'
+      +'<span class="prtg">'+p.rtg+'</span>'
+      +'</div>';
   }).join('');
 }
 
-function renderPitch(){
-  var pitch = document.getElementById('pitch');
-  pitch.querySelectorAll('.pdot').forEach(function(e){ e.remove(); });
+// ── simulation control ────────────────────────────────────────
+document.getElementById('simBtn').addEventListener('click',function(){
+  if(FM26Engine.State.running) return;
+  FM26Engine.resetState();
+  document.getElementById('score').textContent='0 : 0';
+  document.getElementById('mstatus').textContent='진행중 ●';
+  document.getElementById('mstatus').className='mstatus live';
+  document.getElementById('log').innerHTML='';
+  document.getElementById('ptbody').innerHTML='';
+  document.getElementById('simBtn').disabled=true;
+  clearHeat(); clearPass();
+  heatmapAccum=[];
 
-  var pos = FORMATIONS[curFormation];
-  pos.forEach(function(p,i){
-    var pl = PLAYERS[i] || {num:i+1, name:'?'};
-    pitch.appendChild(makeDot(p[0], p[1], pl.num, pl.name, false, i));
-  });
-  pos.forEach(function(p,i){
-    var opp = OPPS[i] || {name:'?'};
-    pitch.appendChild(makeDot(p[0], 100-p[1], i+1, opp.name, true, i));
-  });
-}
+  var press=parseInt(document.getElementById('press').value);
+  var tempo=parseInt(document.getElementById('tempo').value);
+  var curF=document.querySelector('.fbtn.active');
+  var formation=curF?curF.dataset.f:'4-4-2';
 
-function makeDot(xp, yp, num, name, isOpp, idx){
-  var dot = document.createElement('div');
-  dot.className = 'pdot';
-  dot.id = (isOpp ? 'opp' : 'my') + idx;
-  dot.style.left = xp+'%';
-  dot.style.top  = yp+'%';
-  dot.style.transition = 'left '+( 0.25 + Math.random()*0.2 ).toFixed(2)+'s ease, top '+(0.25 + Math.random()*0.2).toFixed(2)+'s ease';
-
-  var circle = document.createElement('div');
-  circle.className = 'pcircle'+(isOpp?' opp':'');
-  circle.textContent = num;
-
-  var tag = document.createElement('div');
-  tag.className = 'ptag';
-  tag.textContent = name.length>4 ? name.slice(0,4) : name;
-
-  dot.appendChild(circle);
-  dot.appendChild(tag);
-  return dot;
-}
-
-function movePlayersPartial(myBallSide){
-  var pos = FORMATIONS[curFormation];
-  var myLineShift  = myBallSide ? rnd(-3, 1) : rnd(1, 5);
-  var oppLineShift = myBallSide ? rnd(1, 4)  : rnd(-3, 1);
-
-  // 틱마다 랜덤으로 선택된 선수만 움직임
-  var myIdxs  = shuffle([0,1,2,3,4,5,6,7,8,9,10]).slice(0, rnd(2,5));
-  var oppIdxs = shuffle([0,1,2,3,4,5,6,7,8,9,10]).slice(0, rnd(2,5));
-
-  myIdxs.forEach(function(i){
-    var el = document.getElementById('my'+i);
-    if(!el) return;
-    var jx = i===0 ? rnd(-1,1) : rnd(-5, 5);
-    var jy = i===0 ? rnd(-1,1) : rnd(-4, 4);
-    el.style.left = clamp(pos[i][0] + jx, 4, 96)+'%';
-    el.style.top  = clamp(pos[i][1] + myLineShift + jy, 3, 97)+'%';
-  });
-  oppIdxs.forEach(function(i){
-    var el = document.getElementById('opp'+i);
-    if(!el) return;
-    var jx = i===0 ? rnd(-1,1) : rnd(-5, 5);
-    var jy = i===0 ? rnd(-1,1) : rnd(-4, 4);
-    el.style.left = clamp(pos[i][0] + jx, 4, 96)+'%';
-    el.style.top  = clamp((100-pos[i][1]) + oppLineShift + jy, 3, 97)+'%';
-  });
-}
-
-function shuffle(arr){
-  var a = arr.slice();
-  for(var i=a.length-1;i>0;i--){
-    var j=Math.floor(Math.random()*(i+1));
-    var t=a[i]; a[i]=a[j]; a[j]=t;
-  }
-  return a;
-}
-
-function movePlayers(myBallSide){
-  var pos = FORMATIONS[curFormation];
-  // 공 방향으로 라인 전체가 살짝 이동하는 오프셋 (작게)
-  var myLineShift  = myBallSide ? rnd(-4, 2) : rnd(1, 6);
-  var oppLineShift = myBallSide ? rnd(1, 5)  : rnd(-4, 2);
-
-  pos.forEach(function(p, i){
-    var el = document.getElementById('my'+i);
-    if(!el) return;
-    // 각 선수마다 독립적인 랜덤 오프셋 (범위 작게, 타이밍 다르게)
-    var jx = rnd(-4, 4);
-    var jy = rnd(-3, 3);
-    // GK는 거의 안 움직임
-    if(i === 0){ jx = rnd(-1,1); jy = rnd(-1,1); }
-    var nx = clamp(p[0] + jx, 4, 96);
-    var ny = clamp(p[1] + myLineShift + jy, 3, 97);
-    el.style.left = nx+'%';
-    el.style.top  = ny+'%';
-  });
-
-  pos.forEach(function(p, i){
-    var el = document.getElementById('opp'+i);
-    if(!el) return;
-    var jx = rnd(-4, 4);
-    var jy = rnd(-3, 3);
-    if(i === 0){ jx = rnd(-1,1); jy = rnd(-1,1); }
-    var nx = clamp(p[0] + jx, 4, 96);
-    var ny = clamp((100-p[1]) + oppLineShift + jy, 3, 97);
-    el.style.left = nx+'%';
-    el.style.top  = ny+'%';
-  });
-}
-
-function moveBall(bx, by){
-  var ball = document.getElementById('ball');
-  ball.style.left = bx+'%';
-  ball.style.top  = by+'%';
-}
-
-function generateEvents(){
-  var press = parseInt(document.getElementById('press').value);
-  var tempo = parseInt(document.getElementById('tempo').value);
-  var defline = document.getElementById('defline').value;
-
-  var teamMentality = 5 + press * 0.5 + tempo * 0.3;
-
-  var oppTeam = {
-    pressing:       50 + rnd(-10, 20),
-    tactic_counter: rnd(0, 30)
-  };
-
-  var environment = {
-    crowd:   70,   // 홈 경기
-    weather: rnd(0, 20),
-    pitch:   rnd(0, 15)
-  };
-
-  var minutes = [5,9,14,18,23,27,31,35,38,42,46,50,54,58,62,66,70,74,78,82,86,89];
-  var evs = [];
-
-  // 볼 점유 중인 팀 (true=my, false=opp)
-  var myBall = Math.random() < 0.55;
-
-  minutes.forEach(function(min){
-    var context = {
-      minute:    min,
-      goal_diff: myScore - oppScore,
-      big_match: true
-    };
-
-    // 공격 선수 선택
-    var attackers = myBall ? PLAYERS.slice(7)  : OPPS.slice(7);
-    var mids      = myBall ? PLAYERS.slice(4,7): OPPS.slice(4,7);
-    var actor     = pick(attackers.concat(mids));
-
-    var result = playerAIDecision(actor, teamMentality, oppTeam, context, environment);
-    var action  = result.action;
-    var success = result.success;
-
-    var ev = null;
-
-    if(myBall){
-      if(action === 'SHOOT' || action === 'LONGSHOT'){
-        myShots++;
-        if(success){
-          var as = pick(mids);
-          ev = {min:min, type:'gmy', text:'⚽ '+actor.name+' 골! (어시스트: '+as.name+')', bx:rnd(30,70), by:rnd(5,18)};
-          myBall = true;
-        } else {
-          ev = {min:min, type:'shot', text:actor.name+(action==='LONGSHOT'?' 중거리 슈팅':' 슈팅')+' — '+(Math.random()<0.5?'골키퍼 선방.':'빗나갔습니다.'), bx:rnd(10,90), by:rnd(5,25)};
-          myBall = Math.random() < 0.3;
-        }
-      } else if(action === 'PASS' || action === 'THROUGH'){
-        myPasses += rnd(1,3);
-        var target = pick(attackers);
-        ev = {min:min, type:'pass', text:actor.name+(action==='THROUGH'?' 스루패스 → ':' 패스 → ')+target.name+'.', bx:rnd(25,75), by:rnd(25,65)};
-        myBall = success;
-      } else if(action === 'DRIBBLE'){
-        ev = {min:min, type:'press', text:actor.name+' 드리블 돌파 — '+(success?'성공!':'막혔습니다.'), bx:rnd(20,80), by:rnd(20,55)};
-        myBall = success;
-      } else if(action === 'HOLD'){
-        ev = {min:min, type:'pass', text:actor.name+' 볼 키핑.', bx:rnd(30,70), by:rnd(30,65)};
-        myBall = success || Math.random()<0.7;
-      }
-    } else {
-      // 상대팀 공격
-      if(action === 'SHOOT' || action === 'LONGSHOT'){
-        oppShots++;
-        if(success){
-          ev = {min:min, type:'gopp', text:'💥 '+actor.name+' 실점!', bx:rnd(30,70), by:rnd(82,95)};
-          myBall = false;
-        } else {
-          ev = {min:min, type:'save', text:actor.name+' 슈팅 — 김준혁 선방!', bx:rnd(20,80), by:rnd(78,95)};
-          myBall = Math.random() < 0.6;
-        }
-      } else if(action === 'PASS' || action === 'THROUGH'){
-        var target2 = pick(attackers);
-        ev = {min:min, type:'danger', text:actor.name+' → '+target2.name+' 연결'+(success?', 위협적 침투.':' — 차단!'), bx:rnd(20,80), by:rnd(60,90)};
-        myBall = !success;
-      } else if(action === 'DRIBBLE'){
-        ev = {min:min, type:'foul', text:actor.name+' 드리블 — '+(success?'파울 유도!':'공 탈취!'), bx:rnd(15,85), by:rnd(50,85)};
-        myBall = !success;
-      } else {
-        myBall = Math.random() < 0.5;
+  FM26Engine.runSimulation(press,tempo,{
+    onStart:function(){},
+    onTick:onTick,
+    onEvent:onEvent,
+    onEnd:function(d){
+      var res=d.myScore>d.oppScore?'승리! 🎉':d.myScore<d.oppScore?'패배...':'무승부';
+      addLog(90,'gmy','🏁 경기 종료 — '+res+' ('+d.myScore+':'+d.oppScore+')');
+      addLog(90,'amb','xG 우리 '+d.myXG.toFixed(2)+' vs 상대 '+d.oppXG.toFixed(2));
+      document.getElementById('mstatus').textContent='경기 종료';
+      document.getElementById('mstatus').className='mstatus';
+      document.getElementById('simBtn').disabled=false;
+      document.getElementById('minDisp').textContent='90';
+      updatePlayerTable(d.players);
+      if(viewMode==='heat') drawHeatmap(FM26Engine.State.heatmap);
+      if(viewMode==='pass'){
+        var f=document.querySelector('.fbtn.active');
+        drawPassMap(FM26Engine.State.passmap,f?f.dataset.f:'4-4-2');
       }
     }
-
-    // 볼 소유 전환 이벤트 (ev 없을 때)
-    if(!ev){
-      ev = {min:min, type:'pass', text:(myBall?'우리팀':'상대팀')+' 볼 점유.', bx:rnd(20,80), by:rnd(25,75)};
-    }
-
-    // 볼 위치
-    if(!ev.bx) { ev.bx = rnd(20,80); ev.by = myBall ? rnd(20,65) : rnd(45,85); }
-    evs.push(ev);
-  });
-
-  return evs;
-}
-
-var ICONS = {gmy:'⚽', gopp:'💥', shot:'🎯', save:'🧤', pass:'🔄', press:'💨', foul:'🟡', danger:'⚠️'};
-var CLS   = {gmy:'gmy', gopp:'gopp', shot:'', save:'opp', pass:'', press:'', foul:'', danger:'opp'};
-
-function addLog(min, type, text){
-  var log = document.getElementById('log');
-  var e = document.createElement('div');
-  e.className = 'log-entry';
-  var icon = ICONS[type]||'•';
-  var cls  = CLS[type]||'';
-  var t = text;
-  PLAYERS.concat(OPPS).forEach(function(p){
-    t = t.split(p.name).join('<b>'+p.name+'</b>');
-  });
-  e.innerHTML = '<span class="lmin">'+min+"'</span><span class=\"lic\">"+icon+'</span><span class="ltxt '+cls+'">'+t+'</span>';
-  log.appendChild(e);
-  log.scrollTop = log.scrollHeight;
-}
-
-function updateStats(poss){
-  document.getElementById('sShot').textContent  = myShots;
-  document.getElementById('sOShot').textContent = oppShots;
-  document.getElementById('sPass').textContent  = myPasses;
-  document.getElementById('score').textContent  = myScore+' : '+oppScore;
-  document.getElementById('possFill').style.width = poss+'%';
-  document.getElementById('possMyV').textContent  = poss+'%';
-  document.getElementById('possOppV').textContent = (100-poss)+'%';
-}
-
-async function startSim(){
-  if(simRunning) return;
-  simRunning = true;
-  myScore=0; oppScore=0; myShots=0; oppShots=0; myPasses=0;
-
-  document.getElementById('simBtn').disabled = true;
-  document.getElementById('score').textContent = '0 : 0';
-  document.getElementById('mstatus').textContent = '진행중 ●';
-  document.getElementById('mstatus').className = 'mstatus live';
-  document.getElementById('statsRow').style.display = 'flex';
-  document.getElementById('possRow').style.display = 'block';
-  document.getElementById('log').innerHTML = '';
-
-  moveBall(50, 50);
-
-  var evs = generateEvents();
-  var poss = 50 + rnd(-5, 18);
-
-  // 90분 = 현실 600초 → 1분 = 6667ms
-  var MS_PER_MIN = 600000 / 90;
-  var BALL_TICK = 400;
-
-  var prevMin = 0;
-  for(var i=0; i<evs.length; i++){
-    var ev = evs[i];
-    var gap = Math.max((ev.min - prevMin) * MS_PER_MIN, 30);
-
-    // gap 동안 공 + 선수 계속 이동
-    var elapsed = 0;
-    var myBallSide = (ev.by !== undefined) ? ev.by < 50 : true;
-    while(elapsed + BALL_TICK < gap){
-      await sleep(BALL_TICK);
-      elapsed += BALL_TICK;
-      moveBall(rnd(15,85), rnd(20,80));
-      // 선수는 틱마다 랜덤으로 2~4명씩만 움직임
-      movePlayersPartial(myBallSide);
-    }
-    await sleep(Math.max(gap - elapsed, 10));
-
-    prevMin = ev.min;
-    if(ev.type==='gmy')  { myScore++;  }
-    if(ev.type==='gopp') { oppScore++; }
-    if(ev.type==='pass') { myPasses += rnd(4,10); }
-    if(ev.bx!==undefined) moveBall(ev.bx, ev.by);
-    addLog(ev.min, ev.type, ev.text);
-    updateStats(poss);
-  }
-
-  await sleep(300);
-  moveBall(50,50);
-  var res = myScore>oppScore?'승리! 🎉':myScore<oppScore?'패배...':'무승부';
-  addLog(90, 'gmy', '🏁 경기 종료 — '+res);
-  document.getElementById('mstatus').textContent = '경기 종료';
-  document.getElementById('mstatus').className = 'mstatus';
-  document.getElementById('simBtn').disabled = false;
-  simRunning = false;
-}
-
-function resetMatch(){
-  if(simRunning) return;
-  myScore=0; oppScore=0; myShots=0; oppShots=0; myPasses=0;
-  document.getElementById('score').textContent = '- : -';
-  document.getElementById('mstatus').textContent = '경기 전';
-  document.getElementById('mstatus').className = 'mstatus';
-  document.getElementById('statsRow').style.display = 'none';
-  document.getElementById('possRow').style.display = 'none';
-  document.getElementById('log').innerHTML = '<div class="empty"><div class="big">🏟</div><div>경기 시작을 눌러주세요</div></div>';
-  moveBall(50,50);
-}
-
-// INIT
-document.getElementById('press').addEventListener('input', function(e){
-  document.getElementById('pressv').textContent = e.target.value;
+  },formation);
 });
-document.getElementById('tempo').addEventListener('input', function(e){
-  document.getElementById('tempov').textContent = e.target.value;
-});
-document.getElementById('simBtn').addEventListener('click', startSim);
-document.getElementById('rstBtn').addEventListener('click', resetMatch);
 
+document.getElementById('rstBtn').addEventListener('click',function(){
+  FM26Engine.stopSimulation();
+  setTimeout(function(){   // stop이 async라 한 틱 뒤에 리셋
+    FM26Engine.resetState();
+    document.getElementById('score').textContent='- : -';
+    document.getElementById('mstatus').textContent='경기 전';
+    document.getElementById('mstatus').className='mstatus';
+    document.getElementById('minDisp').textContent='0';
+    document.getElementById('mind').style.left='50%';
+    document.getElementById('simBtn').disabled=false;
+    document.getElementById('log').innerHTML='<div class="empty"><div class="big">🏟</div><div>경기 시작을 눌러주세요</div></div>';
+    document.getElementById('ball').style.left='50%';
+    document.getElementById('ball').style.top='50%';
+    clearHeat(); clearPass();
+    renderFormation();
+    document.getElementById('ptbody').innerHTML='';
+    document.getElementById('xgMy').textContent='0.00';
+    document.getElementById('xgOpp').textContent='0.00';
+  }, 50);
+});
+
+// ── overlay buttons ───────────────────────────────────────────
+document.getElementById('heatBtn').addEventListener('click',function(){
+  viewMode=viewMode==='heat'?'none':'heat';
+  this.classList.toggle('on',viewMode==='heat');
+  document.getElementById('passBtn').classList.remove('on');
+  if(viewMode==='heat') drawHeatmap(FM26Engine.State.heatmap); else clearHeat();
+  if(viewMode!=='pass') clearPass();
+});
+document.getElementById('passBtn').addEventListener('click',function(){
+  viewMode=viewMode==='pass'?'none':'pass';
+  this.classList.toggle('on',viewMode==='pass');
+  document.getElementById('heatBtn').classList.remove('on');
+  if(viewMode==='pass'){
+    var f=document.querySelector('.fbtn.active');
+    drawPassMap(FM26Engine.State.passmap,f?f.dataset.f:'4-4-2');
+  } else clearPass();
+  if(viewMode!=='heat') clearHeat();
+});
+
+// ── tabs ──────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.tpane').forEach(function(p){p.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('t'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── sliders ───────────────────────────────────────────────────
+document.getElementById('press').addEventListener('input',function(){document.getElementById('pressv').textContent=this.value;});
+document.getElementById('tempo').addEventListener('input',function(){document.getElementById('tempov').textContent=this.value;});
+
+// ── resize ────────────────────────────────────────────────────
+window.addEventListener('resize',function(){sizePitch();});
+
+// ── boot ──────────────────────────────────────────────────────
 buildFormationBtns();
+buildStatBars();
 buildPlayerList();
-renderPitch();
+// requestAnimationFrame으로 레이아웃 완성 후 피치 크기 계산
+requestAnimationFrame(function(){
+  requestAnimationFrame(function(){
+    sizePitch();
+  });
+});
 </script>
 </body>
 </html>
