@@ -398,21 +398,21 @@ async function runSimulation(pressSetting,tempoSetting,callbacks,formation){
     var gap=Math.max((ev.min-prevMin)*MS_PER_MIN,30);
     var elapsed=0;
 
-    // tick loop between events
+    // 이벤트 사이: 볼만 업데이트 (포지션은 렌더러가 rAF로 직접 처리)
     while(elapsed+TICK_MS<gap){
       await sleep(TICK_MS);
       elapsed+=TICK_MS;
       ballX=clamp(ballX+rndF(-1,1)*9,4,96);
       ballY=clamp(ballY+rndF(-1,1)*9,4,96);
 
-      // compute positioning for all players
+      // 목표 포지션만 계산해서 전달
       var pressI=pressSetting/10;
-      var positions=[];
+      var targets=[];
       for(var pi=0;pi<11;pi++){
-        positions.push(calcPlayerPos(pi,false,ev.myBall,ballX,ballY,pressI,State.formation));
-        positions.push(calcPlayerPos(pi,true, ev.myBall,ballX,ballY,pressI,State.formation));
+        targets.push(calcPlayerPos(pi,false,ev.myBall,ballX,ballY,pressI,State.formation));
+        targets.push(calcPlayerPos(pi,true, ev.myBall,ballX,ballY,pressI,State.formation));
       }
-      callbacks.onTick({ballX:ballX,ballY:ballY,positions:positions,minute:ev.min});
+      callbacks.onTick({ballX:ballX,ballY:ballY,targets:targets,minute:ev.min});
     }
 
     await sleep(Math.max(gap-elapsed,10));
