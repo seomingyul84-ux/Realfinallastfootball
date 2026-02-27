@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FM26</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --bg:     #09120a;
+    --bg2:    #0e1a0f;
+    --bg3:    #131f14;
+    --panel:  #0f1a10;
+    --border: #1c2e1d;
+    --green:  #00ff41;
+    --g2:     #00c832;
+    --gdim:   #00441a;
+    --gmute:  #122218;
+    --amber:  #ffb700;
+    --red:    #ff3c3c;
+    --text:   #b8d8b8;
+    --tdim:   #3d5e3d;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--bg2);
+    border-bottom: 2px solid var(--gdim);
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .logo { font-size: 20px; font-weight: 900; color: var(--green); letter-spacing: -1px; text-shadow: 0 0 15px rgba(0,255,65,.5); }
+  .logo span { color: var(--tdim); }
+  .hinfo { font-size: 10px; color: var(--tdim); text-align:right; line-height:1.6; }
+
+  .main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    overflow: hidden;
+  }
+
+  .sidebar {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .slabel {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--tdim);
+    text-transform: uppercase;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 6px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+
+  .fbtn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--tdim);
+    font-family: monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 7px 2px;
+    cursor: pointer;
+    text-align: center;
+    transition: .15s;
+  }
+  .fbtn:hover { color: var(--text); border-color: var(--gdim); }
+  .fbtn.active { background: var(--gmute); border-color: var(--g2); color: var(--green); }
+
+  select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: monospace;
+    font-size: 12px;
+    padding: 6px 8px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .slabel2 { font-size: 9px; color: var(--tdim); letter-spacing: 1px; display: block; margin-bottom: 4px; }
+
+  .sl-row { display: flex; gap: 6px; align-items: center; }
+  .sl-row input { flex:1; accent-color: var(--g2); }
+  .sl-val { font-size: 11px; color: var(--green); width: 16px; text-align: right; }
+
+  .plist { display: flex; flex-direction: column; }
+  .pitem {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    transition: .1s;
+  }
+  .pitem:hover { background: var(--bg3); }
+  .pnum { font-size: 9px; color: var(--tdim); width: 16px; text-align:right; }
+  .pbadge {
+    font-size: 8px; font-weight:700;
+    background: var(--gmute); color: var(--g2);
+    border: 1px solid var(--gdim);
+    padding: 1px 4px; min-width: 26px; text-align:center;
+  }
+  .pname { flex:1; }
+  .prtg { font-size: 10px; color: var(--amber); }
+
+  .center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    background: var(--bg);
+    padding: 16px;
+  }
+
+  .pitch-wrap { position: relative; width: 300px; height: 460px; }
+
+  .pitch {
+    width: 100%; height: 100%;
+    background: #174d17;
+    border: 2px solid #2a6a2a;
+    position: relative;
+    overflow: visible;
+  }
+
+  .pitch::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      180deg, transparent 0, transparent 40px, rgba(0,0,0,.1) 40px, rgba(0,0,0,.1) 80px
+    );
+    pointer-events: none;
+  }
+
+  .pitch-svg {
+    position: absolute; inset: 0; width:100%; height:100%; pointer-events:none;
+  }
+
+  .ball {
+    position: absolute;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    box-shadow: 0 0 10px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.6);
+    transform: translate(-50%, -50%);
+    transition: left .55s ease, top .55s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .pdot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    z-index: 5;
+  }
+  .pcircle {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--g2); border: 2px solid var(--green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; color: #000;
+    box-shadow: 0 0 8px rgba(0,200,50,.4);
+    transition: .15s;
+    cursor: default;
+  }
+  .pcircle.opp { background: var(--red); border-color: #ff7070; color: #fff; box-shadow: 0 0 8px rgba(255,60,60,.4); }
+  .ptag {
+    font-size: 8px; color: #fff;
+    background: rgba(0,0,0,.75);
+    padding: 1px 3px; white-space: nowrap;
+  }
+
+  .controls { display: flex; gap: 10px; align-items: center; }
+
+  .btn-sim {
+    background: var(--g2); color: #000;
+    border: none; cursor: pointer;
+    font-family: monospace; font-size: 15px; font-weight: 900;
+    letter-spacing: 1px;
+    padding: 11px 28px;
+    transition: .15s;
+    text-transform: uppercase;
+  }
+  .btn-sim:hover:not(:disabled) { background: var(--green); }
+  .btn-sim:disabled { opacity: .45; cursor: not-allowed; }
+
+  .btn-rst {
+    background: transparent; color: var(--tdim);
+    border: 1px solid var(--border);
+    font-family: monospace; font-size: 11px;
+    padding: 9px 14px; cursor: pointer; transition: .15s;
+  }
+  .btn-rst:hover { color: var(--text); border-color: var(--tdim); }
+
+  .rpanel {
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+
+  .rhead { padding: 14px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink:0; }
+
+  .scoreboard {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin: 8px 0;
+  }
+  .tname { font-size: 12px; font-weight:700; color: var(--tdim); text-align:center; max-width:70px; line-height:1.2; }
+  .tname.my { color: var(--green); }
+  .score {
+    font-size: 30px; font-weight: 900; color: var(--green);
+    letter-spacing: -2px; min-width: 80px; text-align: center;
+    text-shadow: 0 0 16px rgba(0,255,65,.3);
+  }
+  .mstatus { text-align:center; font-size: 9px; color: var(--tdim); letter-spacing:2px; margin-top:4px; }
+  .mstatus.live { color: var(--green); animation: blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+  .stats-row {
+    display: none; gap: 0; padding: 8px 14px;
+    border-bottom: 1px solid var(--border); flex-shrink:0;
+  }
+  .sitem { flex:1; text-align:center; }
+  .sval { font-size: 13px; font-weight:700; color: var(--text); }
+  .sval.hi { color: var(--green); }
+  .sname { font-size: 9px; color: var(--tdim); letter-spacing:1px; margin-top:2px; }
+
+  .poss-row {
+    display: none; padding: 8px 14px;
+    border-bottom: 1px solid var(--border); flex-shrink:0;
+  }
+  .poss-labels { display:flex; justify-content:space-between; font-size:9px; color:var(--tdim); margin-bottom:5px; }
+  .poss-labels .pv { color: var(--text); }
+  .poss-bar { height:4px; background:var(--bg3); border-radius:2px; overflow:hidden; }
+  .poss-fill { height:100%; background: linear-gradient(90deg, var(--g2), var(--green)); transition: width .5s; }
+
+  .log {
+    flex:1; overflow-y:auto; padding:10px 14px;
+    display: flex; flex-direction:column; gap:3px;
+  }
+
+  .log-entry {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 4px 0; border-bottom: 1px solid rgba(28,46,29,.5);
+    opacity: 0; animation: fadeIn .3s forwards;
+  }
+  @keyframes fadeIn { to { opacity:1; } }
+
+  .lmin { font-size:10px; color:var(--tdim); width:24px; flex-shrink:0; margin-top:1px; }
+  .lic  { width:16px; flex-shrink:0; font-size:12px; }
+  .ltxt { font-size:12px; line-height:1.4; flex:1; }
+  .ltxt b { color: var(--green); }
+  .ltxt.opp b { color: var(--red); }
+  .ltxt.gmy { color: var(--green); font-weight:700; font-size:13px; }
+  .ltxt.gopp { color: var(--red); font-weight:700; font-size:13px; }
+
+  .empty {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    height:100%; color:var(--tdim); font-size:10px; letter-spacing:2px; gap:10px;
+    text-transform:uppercase;
+  }
+  .empty .big { font-size:42px; opacity:.2; }
+
+  ::-webkit-scrollbar { width:3px; }
+  ::-webkit-scrollbar-thumb { background: var(--gdim); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">FM<span>/</span>26</div>
+  <div class="hinfo">시즌 2025/26 · 1라운드<br>홈 경기</div>
+</header>
+
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div>
+      <div class="slabel">포메이션</div>
+      <div class="form-grid" id="fgrid"></div>
+    </div>
+
+    <div>
+      <div class="slabel">전술</div>
+      <div style="margin-bottom:10px">
+        <span class="slabel2">플레이 스타일</span>
+        <select id="pstyle">
+          <option>점유 축구</option>
+          <option>빠른 역습</option>
+          <option>압박 전진</option>
+          <option>수비 후 역습</option>
+          <option>직접 롱볼</option>
+        </select>
+      </div>
+      <div style="margin-bottom:10px">
+        <span class="slabel2">압박 강도</span>
+        <div class="sl-row">
+          <input type="range" id="press" min="1" max="10" value="5">
+          <span class="sl-val" id="pressv">5</span>
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <span class="slabel2">수비 라인</span>
+        <select id="defline">
+          <option>깊은 수비</option>
+          <option>중간</option>
+          <option>높은 수비</option>
+        </select>
+      </div>
+      <div>
+        <span class="slabel2">템포</span>
+        <div class="sl-row">
+          <input type="range" id="tempo" min="1" max="10" value="6">
+          <span class="sl-val" id="tempov">6</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="slabel">선수단</div>
+      <div class="plist" id="plist"></div>
+    </div>
+  </div>
+
+  <!-- PITCH -->
+  <div class="center">
+    <div class="pitch-wrap">
+      <div class="pitch" id="pitch">
+        <svg class="pitch-svg" viewBox="0 0 300 460" fill="none" stroke="#2a6a2a" stroke-width="1.2">
+          <rect x="1" y="1" width="298" height="458"/>
+          <line x1="1" y1="230" x2="299" y2="230"/>
+          <circle cx="150" cy="230" r="46"/>
+          <circle cx="150" cy="230" r="2.5" fill="#2a6a2a"/>
+          <rect x="66" y="1" width="168" height="88"/>
+          <rect x="66" y="371" width="168" height="88"/>
+          <rect x="108" y="1" width="84" height="38"/>
+          <rect x="108" y="421" width="84" height="38"/>
+          <circle cx="150" cy="74" r="2.5" fill="#2a6a2a"/>
+          <circle cx="150" cy="386" r="2.5" fill="#2a6a2a"/>
+        </svg>
+        <div class="ball" id="ball" style="left:50%;top:50%"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn-sim" id="simBtn">⚽ 경기 시작</button>
+      <button class="btn-rst" id="rstBtn">초기화</button>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="rpanel">
+    <div class="rhead">
+      <div class="slabel">경기 현황</div>
+      <div class="scoreboard">
+        <div class="tname my">우리팀</div>
+        <div class="score" id="score">- : -</div>
+        <div class="tname">FC 라이벌</div>
+      </div>
+      <div class="mstatus" id="mstatus">경기 전</div>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+      <div class="sitem"><div class="sval hi" id="sShot">0</div><div class="sname">슈팅</div></div>
+      <div class="sitem"><div class="sval" id="sOShot">0</div><div class="sname">상대슈팅</div></div>
+      <div class="sitem"><div class="sval hi" id="sPass">0</div><div class="sname">패스</div></div>
+    </div>
+
+    <div class="poss-row" id="possRow">
+      <div class="poss-labels">
+        <span class="pv" id="possMyV">50%</span>
+        <span>점유율</span>
+        <span id="possOppV">50%</span>
+      </div>
+      <div class="poss-bar"><div class="poss-fill" id="possFill" style="width:50%"></div></div>
+    </div>
+
+    <div class="log" id="log">
+      <div class="empty">
+        <div class="big">🏟</div>
+        <div>경기 시작을 눌러주세요</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- AI SYSTEM (Python → JS 포팅) ----
+function normalRandom(mean, std){
+  // Box-Muller
+  var u = 1 - Math.random(), v = Math.random();
+  var z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  return mean + z * std;
+}
+
+function softmax(scores){
+  var max = Math.max(...scores);
+  var exps = scores.map(function(s){ return Math.exp(s - max); });
+  var sum  = exps.reduce(function(a,b){ return a+b; }, 0);
+  return exps.map(function(e){ return e/sum; });
+}
+
+function weightedChoice(items, probs){
+  var r = Math.random(), cum = 0;
+  for(var i=0;i<items.length;i++){
+    cum += probs[i];
+    if(r < cum) return items[i];
+  }
+  return items[items.length-1];
+}
+
+var ACTIONS = ["PASS","SHOOT","DRIBBLE","HOLD","THROUGH","LONGSHOT"];
+
+var ACTION_WEIGHTS = {
+  PASS:     {passing:0.5, vision:0.3, technique:0.2},
+  SHOOT:    {finishing:0.5, long_shots:0.2, technique:0.3},
+  DRIBBLE:  {dribbling:0.5, agility:0.3, technique:0.2},
+  HOLD:     {strength:0.4, balance:0.4, composure:0.2},
+  THROUGH:  {vision:0.5, passing:0.3, technique:0.2},
+  LONGSHOT: {long_shots:0.6, technique:0.2, finishing:0.2}
+};
+
+function makeAIPlayer(name, pos, rtg, personality){
+  var base = rtg;
+  return {
+    name: name, pos: pos, rtg: rtg,
+    attributes: {
+      passing:    clamp(base + rndF(-8,8), 40, 99),
+      finishing:  clamp(base + rndF(-10,10), 40, 99),
+      dribbling:  clamp(base + rndF(-8,8), 40, 99),
+      technique:  clamp(base + rndF(-6,6), 40, 99),
+      vision:     clamp(base + rndF(-8,8), 40, 99),
+      long_shots: clamp(base + rndF(-12,12), 40, 99),
+      strength:   clamp(base + rndF(-10,10), 40, 99),
+      balance:    clamp(base + rndF(-8,8), 40, 99),
+      agility:    clamp(base + rndF(-8,8), 40, 99),
+      composure:  clamp(base + rndF(-6,6), 40, 99)
+    },
+    action_weights: ACTION_WEIGHTS,
+    mentality:        rnd(5,15),
+    role_familiarity: clamp(base - 10, 60, 100),
+    mental_resilience:clamp(base - 5,  50, 100),
+    urgency:          Math.random() * 1.5 + 0.5,
+    confidence:       clamp(base - 5,  50, 100),
+    pressure:         Math.random() * 30,
+    morale:           clamp(base - 10, 50, 100),
+    panic:            Math.random() * 20,
+    fatigue:          Math.random() * 10,
+    injury_risk:      Math.random() * 5,
+    personality:      personality || pick(["NORMAL","SELFISH","BIGMATCH","NERVOUS"]),
+    last5_rating:     Math.random() * 2 + 6
+  };
+}
+
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+function rndF(a,b){ return Math.random()*(b-a)+a; }
+
+function playerAIDecision(player, teamMentality, opponent, context, environment){
+  var scores = ACTIONS.map(function(action){
+    var weights = player.action_weights[action];
+    var base_ability = 0;
+    for(var k in weights) base_ability += (player.attributes[k]||50) * weights[k];
+    base_ability /= 100;
+
+    var tactical_fit = (1 - Math.abs(player.mentality - teamMentality) / 20)
+                     * (player.role_familiarity / 100);
+
+    var score_impact  = 1 + (context.goal_diff * player.mental_resilience / 200);
+    var time_pressure = 1 + (context.minute / 120) * player.urgency;
+    var context_factor = score_impact * time_pressure;
+
+    var emotion_factor = (player.confidence / 100)
+                       * (1 - player.pressure / 200)
+                       * (player.morale / 100)
+                       * (1 - player.panic / 150);
+
+    var fatigue_penalty  = 1 - (player.fatigue * player.fatigue / 10000);
+    var injury_modifier  = 1 - (player.injury_risk * 0.01);
+    var physical_factor  = fatigue_penalty * injury_modifier;
+
+    var defensive_pressure = opponent.pressing * (1 - (player.attributes.balance||50) / 200);
+    var tactical_counter   = 1 + (opponent.tactic_counter / 100);
+    var opponent_factor    = (1 - defensive_pressure / 100) * tactical_counter;
+
+    var personality_factor = 1.0;
+    if(player.personality==='SELFISH'  && action==='SHOOT') personality_factor *= 1.15;
+    if(player.personality==='SELFISH'  && action==='PASS')  personality_factor *= 0.9;
+    if(player.personality==='BIGMATCH' && context.big_match) personality_factor *= 1.1;
+    if(player.personality==='NERVOUS'  && context.big_match) personality_factor *= 0.85;
+
+    var form_factor = 1 + ((player.last5_rating - 6.5) / 10);
+
+    var home_boost      = 1 + (environment.crowd / 200);
+    var weather_penalty = 1 - (environment.weather / 100);
+    var pitch_penalty   = 1 - (environment.pitch / 150);
+    var environment_factor = home_boost * weather_penalty * pitch_penalty;
+
+    var random_factor = normalRandom(1.0, 0.05);
+
+    var total = base_ability * tactical_fit * context_factor * emotion_factor
+              * physical_factor * opponent_factor * personality_factor
+              * form_factor * environment_factor * random_factor;
+
+    return Math.max(total, 0.01);
+  });
+
+  var probs  = softmax(scores);
+  var chosen = weightedChoice(ACTIONS, probs);
+  var success_chance = probs[ACTIONS.indexOf(chosen)];
+  var success = Math.random() < success_chance;
+
+  // 피드백 업데이트
+  if(success){ player.confidence += 2; player.morale += 1; }
+  else        { player.confidence -= 1.5; player.panic += 1; }
+  player.fatigue += rndF(0.5, 1.5);
+
+  return { action: chosen, success: success, probs: probs };
+}
+
+// ---- PLAYER DATA ----
+var PLAYERS = [
+  makeAIPlayer('김준혁', 'GK',  82, 'NORMAL'),
+  makeAIPlayer('박민준', 'RB',  76, 'NORMAL'),
+  makeAIPlayer('이도현', 'CB',  80, 'BIGMATCH'),
+  makeAIPlayer('최현우', 'CB',  78, 'NORMAL'),
+  makeAIPlayer('정재원', 'LB',  75, 'NORMAL'),
+  makeAIPlayer('황인범', 'CM',  83, 'BIGMATCH'),
+  makeAIPlayer('손준호', 'CAM', 85, 'SELFISH'),
+  makeAIPlayer('이강인', 'CM',  84, 'BIGMATCH'),
+  makeAIPlayer('엄지성', 'LW',  79, 'NERVOUS'),
+  makeAIPlayer('조규성', 'ST',  81, 'SELFISH'),
+  makeAIPlayer('황희찬', 'RW',  83, 'BIGMATCH')
+];
+// num 필드 추가
+var PLAYER_NUMS = [1,2,5,6,3,8,10,7,11,9,18];
+PLAYERS.forEach(function(p,i){ p.num = PLAYER_NUMS[i]; });
+
+var OPPS = [
+  makeAIPlayer('고스',    'GK',  80, 'NORMAL'),
+  makeAIPlayer('리베라',  'RB',  75, 'NORMAL'),
+  makeAIPlayer('마르케스','CB',  82, 'BIGMATCH'),
+  makeAIPlayer('페라리',  'CB',  79, 'NORMAL'),
+  makeAIPlayer('벤테케',  'LB',  76, 'NORMAL'),
+  makeAIPlayer('비달',    'CM',  81, 'SELFISH'),
+  makeAIPlayer('카세미로','CM',  83, 'BIGMATCH'),
+  makeAIPlayer('알론소',  'CAM', 82, 'NORMAL'),
+  makeAIPlayer('페드리',  'LW',  84, 'BIGMATCH'),
+  makeAIPlayer('모라타',  'ST',  80, 'SELFISH'),
+  makeAIPlayer('레바',    'RW',  82, 'NERVOUS')
+];
+
+var FORMATIONS = {
+  '4-4-2':   [[50,92],[82,76],[60,70],[40,70],[18,76],[82,53],[60,48],[40,48],[18,53],[38,28],[62,28]],
+  '4-3-3':   [[50,92],[82,76],[60,70],[40,70],[18,76],[65,52],[50,46],[35,52],[20,26],[50,20],[80,26]],
+  '4-2-3-1': [[50,92],[82,76],[60,70],[40,70],[18,76],[65,60],[35,60],[80,43],[50,38],[20,43],[50,23]],
+  '3-5-2':   [[50,92],[65,73],[50,68],[35,73],[85,56],[63,48],[50,43],[37,48],[15,56],[38,26],[62,26]],
+  '5-3-2':   [[50,92],[88,70],[68,76],[50,78],[32,76],[12,70],[65,52],[50,46],[35,52],[38,26],[62,26]],
+  '3-4-3':   [[50,92],[65,76],[50,70],[35,76],[82,54],[60,48],[40,48],[18,54],[20,26],[50,20],[80,26]]
+};
+
+var curFormation = '4-4-2';
+var simRunning = false;
+var myScore=0, oppScore=0, myShots=0, oppShots=0, myPasses=0;
+
+function rnd(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function sleep(ms){ return new Promise(function(r){ setTimeout(r,ms); }); }
+
+function buildFormationBtns(){
+  var grid = document.getElementById('fgrid');
+  grid.innerHTML = '';
+  Object.keys(FORMATIONS).forEach(function(f){
+    var btn = document.createElement('button');
+    btn.className = 'fbtn' + (f===curFormation?' active':'');
+    btn.textContent = f;
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.fbtn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      curFormation = f;
+      renderPitch();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function buildPlayerList(){
+  var list = document.getElementById('plist');
+  list.innerHTML = PLAYERS.map(function(p){
+    return '<div class="pitem"><span class="pnum">'+p.num+'</span><span class="pbadge">'+p.pos+'</span><span class="pname">'+p.name+'</span><span class="prtg">'+p.rtg+'</span></div>';
+  }).join('');
+}
+
+function renderPitch(){
+  var pitch = document.getElementById('pitch');
+  pitch.querySelectorAll('.pdot').forEach(function(e){ e.remove(); });
+
+  var pos = FORMATIONS[curFormation];
+  pos.forEach(function(p,i){
+    var pl = PLAYERS[i] || {num:i+1, name:'?'};
+    pitch.appendChild(makeDot(p[0], p[1], pl.num, pl.name, false, i));
+  });
+  pos.forEach(function(p,i){
+    var opp = OPPS[i] || {name:'?'};
+    pitch.appendChild(makeDot(p[0], 100-p[1], i+1, opp.name, true, i));
+  });
+}
+
+function makeDot(xp, yp, num, name, isOpp, idx){
+  var dot = document.createElement('div');
+  dot.className = 'pdot';
+  dot.id = (isOpp ? 'opp' : 'my') + idx;
+  dot.style.left = xp+'%';
+  dot.style.top  = yp+'%';
+  dot.style.transition = 'left '+( 0.25 + Math.random()*0.2 ).toFixed(2)+'s ease, top '+(0.25 + Math.random()*0.2).toFixed(2)+'s ease';
+
+  var circle = document.createElement('div');
+  circle.className = 'pcircle'+(isOpp?' opp':'');
+  circle.textContent = num;
+
+  var tag = document.createElement('div');
+  tag.className = 'ptag';
+  tag.textContent = name.length>4 ? name.slice(0,4) : name;
+
+  dot.appendChild(circle);
+  dot.appendChild(tag);
+  return dot;
+}
+
+function movePlayersPartial(myBallSide){
+  var pos = FORMATIONS[curFormation];
+  var myLineShift  = myBallSide ? rnd(-3, 1) : rnd(1, 5);
+  var oppLineShift = myBallSide ? rnd(1, 4)  : rnd(-3, 1);
+
+  // 틱마다 랜덤으로 선택된 선수만 움직임
+  var myIdxs  = shuffle([0,1,2,3,4,5,6,7,8,9,10]).slice(0, rnd(2,5));
+  var oppIdxs = shuffle([0,1,2,3,4,5,6,7,8,9,10]).slice(0, rnd(2,5));
+
+  myIdxs.forEach(function(i){
+    var el = document.getElementById('my'+i);
+    if(!el) return;
+    var jx = i===0 ? rnd(-1,1) : rnd(-5, 5);
+    var jy = i===0 ? rnd(-1,1) : rnd(-4, 4);
+    el.style.left = clamp(pos[i][0] + jx, 4, 96)+'%';
+    el.style.top  = clamp(pos[i][1] + myLineShift + jy, 3, 97)+'%';
+  });
+  oppIdxs.forEach(function(i){
+    var el = document.getElementById('opp'+i);
+    if(!el) return;
+    var jx = i===0 ? rnd(-1,1) : rnd(-5, 5);
+    var jy = i===0 ? rnd(-1,1) : rnd(-4, 4);
+    el.style.left = clamp(pos[i][0] + jx, 4, 96)+'%';
+    el.style.top  = clamp((100-pos[i][1]) + oppLineShift + jy, 3, 97)+'%';
+  });
+}
+
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+
+function movePlayers(myBallSide){
+  var pos = FORMATIONS[curFormation];
+  // 공 방향으로 라인 전체가 살짝 이동하는 오프셋 (작게)
+  var myLineShift  = myBallSide ? rnd(-4, 2) : rnd(1, 6);
+  var oppLineShift = myBallSide ? rnd(1, 5)  : rnd(-4, 2);
+
+  pos.forEach(function(p, i){
+    var el = document.getElementById('my'+i);
+    if(!el) return;
+    // 각 선수마다 독립적인 랜덤 오프셋 (범위 작게, 타이밍 다르게)
+    var jx = rnd(-4, 4);
+    var jy = rnd(-3, 3);
+    // GK는 거의 안 움직임
+    if(i === 0){ jx = rnd(-1,1); jy = rnd(-1,1); }
+    var nx = clamp(p[0] + jx, 4, 96);
+    var ny = clamp(p[1] + myLineShift + jy, 3, 97);
+    el.style.left = nx+'%';
+    el.style.top  = ny+'%';
+  });
+
+  pos.forEach(function(p, i){
+    var el = document.getElementById('opp'+i);
+    if(!el) return;
+    var jx = rnd(-4, 4);
+    var jy = rnd(-3, 3);
+    if(i === 0){ jx = rnd(-1,1); jy = rnd(-1,1); }
+    var nx = clamp(p[0] + jx, 4, 96);
+    var ny = clamp((100-p[1]) + oppLineShift + jy, 3, 97);
+    el.style.left = nx+'%';
+    el.style.top  = ny+'%';
+  });
+}
+
+function moveBall(bx, by){
+  var ball = document.getElementById('ball');
+  ball.style.left = bx+'%';
+  ball.style.top  = by+'%';
+}
+
+function generateEvents(){
+  var press = parseInt(document.getElementById('press').value);
+  var tempo = parseInt(document.getElementById('tempo').value);
+  var defline = document.getElementById('defline').value;
+
+  var teamMentality = 5 + press * 0.5 + tempo * 0.3;
+
+  var oppTeam = {
+    pressing:       50 + rnd(-10, 20),
+    tactic_counter: rnd(0, 30)
+  };
+
+  var environment = {
+    crowd:   70,   // 홈 경기
+    weather: rnd(0, 20),
+    pitch:   rnd(0, 15)
+  };
+
+  var minutes = [5,9,14,18,23,27,31,35,38,42,46,50,54,58,62,66,70,74,78,82,86,89];
+  var evs = [];
+
+  // 볼 점유 중인 팀 (true=my, false=opp)
+  var myBall = Math.random() < 0.55;
+
+  minutes.forEach(function(min){
+    var context = {
+      minute:    min,
+      goal_diff: myScore - oppScore,
+      big_match: true
+    };
+
+    // 공격 선수 선택
+    var attackers = myBall ? PLAYERS.slice(7)  : OPPS.slice(7);
+    var mids      = myBall ? PLAYERS.slice(4,7): OPPS.slice(4,7);
+    var actor     = pick(attackers.concat(mids));
+
+    var result = playerAIDecision(actor, teamMentality, oppTeam, context, environment);
+    var action  = result.action;
+    var success = result.success;
+
+    var ev = null;
+
+    if(myBall){
+      if(action === 'SHOOT' || action === 'LONGSHOT'){
+        myShots++;
+        if(success){
+          var as = pick(mids);
+          ev = {min:min, type:'gmy', text:'⚽ '+actor.name+' 골! (어시스트: '+as.name+')', bx:rnd(30,70), by:rnd(5,18)};
+          myBall = true;
+        } else {
+          ev = {min:min, type:'shot', text:actor.name+(action==='LONGSHOT'?' 중거리 슈팅':' 슈팅')+' — '+(Math.random()<0.5?'골키퍼 선방.':'빗나갔습니다.'), bx:rnd(10,90), by:rnd(5,25)};
+          myBall = Math.random() < 0.3;
+        }
+      } else if(action === 'PASS' || action === 'THROUGH'){
+        myPasses += rnd(1,3);
+        var target = pick(attackers);
+        ev = {min:min, type:'pass', text:actor.name+(action==='THROUGH'?' 스루패스 → ':' 패스 → ')+target.name+'.', bx:rnd(25,75), by:rnd(25,65)};
+        myBall = success;
+      } else if(action === 'DRIBBLE'){
+        ev = {min:min, type:'press', text:actor.name+' 드리블 돌파 — '+(success?'성공!':'막혔습니다.'), bx:rnd(20,80), by:rnd(20,55)};
+        myBall = success;
+      } else if(action === 'HOLD'){
+        ev = {min:min, type:'pass', text:actor.name+' 볼 키핑.', bx:rnd(30,70), by:rnd(30,65)};
+        myBall = success || Math.random()<0.7;
+      }
+    } else {
+      // 상대팀 공격
+      if(action === 'SHOOT' || action === 'LONGSHOT'){
+        oppShots++;
+        if(success){
+          ev = {min:min, type:'gopp', text:'💥 '+actor.name+' 실점!', bx:rnd(30,70), by:rnd(82,95)};
+          myBall = false;
+        } else {
+          ev = {min:min, type:'save', text:actor.name+' 슈팅 — 김준혁 선방!', bx:rnd(20,80), by:rnd(78,95)};
+          myBall = Math.random() < 0.6;
+        }
+      } else if(action === 'PASS' || action === 'THROUGH'){
+        var target2 = pick(attackers);
+        ev = {min:min, type:'danger', text:actor.name+' → '+target2.name+' 연결'+(success?', 위협적 침투.':' — 차단!'), bx:rnd(20,80), by:rnd(60,90)};
+        myBall = !success;
+      } else if(action === 'DRIBBLE'){
+        ev = {min:min, type:'foul', text:actor.name+' 드리블 — '+(success?'파울 유도!':'공 탈취!'), bx:rnd(15,85), by:rnd(50,85)};
+        myBall = !success;
+      } else {
+        myBall = Math.random() < 0.5;
+      }
+    }
+
+    // 볼 소유 전환 이벤트 (ev 없을 때)
+    if(!ev){
+      ev = {min:min, type:'pass', text:(myBall?'우리팀':'상대팀')+' 볼 점유.', bx:rnd(20,80), by:rnd(25,75)};
+    }
+
+    // 볼 위치
+    if(!ev.bx) { ev.bx = rnd(20,80); ev.by = myBall ? rnd(20,65) : rnd(45,85); }
+    evs.push(ev);
+  });
+
+  return evs;
+}
+
+var ICONS = {gmy:'⚽', gopp:'💥', shot:'🎯', save:'🧤', pass:'🔄', press:'💨', foul:'🟡', danger:'⚠️'};
+var CLS   = {gmy:'gmy', gopp:'gopp', shot:'', save:'opp', pass:'', press:'', foul:'', danger:'opp'};
+
+function addLog(min, type, text){
+  var log = document.getElementById('log');
+  var e = document.createElement('div');
+  e.className = 'log-entry';
+  var icon = ICONS[type]||'•';
+  var cls  = CLS[type]||'';
+  var t = text;
+  PLAYERS.concat(OPPS).forEach(function(p){
+    t = t.split(p.name).join('<b>'+p.name+'</b>');
+  });
+  e.innerHTML = '<span class="lmin">'+min+"'</span><span class=\"lic\">"+icon+'</span><span class="ltxt '+cls+'">'+t+'</span>';
+  log.appendChild(e);
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateStats(poss){
+  document.getElementById('sShot').textContent  = myShots;
+  document.getElementById('sOShot').textContent = oppShots;
+  document.getElementById('sPass').textContent  = myPasses;
+  document.getElementById('score').textContent  = myScore+' : '+oppScore;
+  document.getElementById('possFill').style.width = poss+'%';
+  document.getElementById('possMyV').textContent  = poss+'%';
+  document.getElementById('possOppV').textContent = (100-poss)+'%';
+}
+
+async function startSim(){
+  if(simRunning) return;
+  simRunning = true;
+  myScore=0; oppScore=0; myShots=0; oppShots=0; myPasses=0;
+
+  document.getElementById('simBtn').disabled = true;
+  document.getElementById('score').textContent = '0 : 0';
+  document.getElementById('mstatus').textContent = '진행중 ●';
+  document.getElementById('mstatus').className = 'mstatus live';
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('possRow').style.display = 'block';
+  document.getElementById('log').innerHTML = '';
+
+  moveBall(50, 50);
+
+  var evs = generateEvents();
+  var poss = 50 + rnd(-5, 18);
+
+  // 90분 = 현실 600초 → 1분 = 6667ms
+  var MS_PER_MIN = 600000 / 90;
+  var BALL_TICK = 400;
+
+  var prevMin = 0;
+  for(var i=0; i<evs.length; i++){
+    var ev = evs[i];
+    var gap = Math.max((ev.min - prevMin) * MS_PER_MIN, 30);
+
+    // gap 동안 공 + 선수 계속 이동
+    var elapsed = 0;
+    var myBallSide = (ev.by !== undefined) ? ev.by < 50 : true;
+    while(elapsed + BALL_TICK < gap){
+      await sleep(BALL_TICK);
+      elapsed += BALL_TICK;
+      moveBall(rnd(15,85), rnd(20,80));
+      // 선수는 틱마다 랜덤으로 2~4명씩만 움직임
+      movePlayersPartial(myBallSide);
+    }
+    await sleep(Math.max(gap - elapsed, 10));
+
+    prevMin = ev.min;
+    if(ev.type==='gmy')  { myScore++;  }
+    if(ev.type==='gopp') { oppScore++; }
+    if(ev.type==='pass') { myPasses += rnd(4,10); }
+    if(ev.bx!==undefined) moveBall(ev.bx, ev.by);
+    addLog(ev.min, ev.type, ev.text);
+    updateStats(poss);
+  }
+
+  await sleep(300);
+  moveBall(50,50);
+  var res = myScore>oppScore?'승리! 🎉':myScore<oppScore?'패배...':'무승부';
+  addLog(90, 'gmy', '🏁 경기 종료 — '+res);
+  document.getElementById('mstatus').textContent = '경기 종료';
+  document.getElementById('mstatus').className = 'mstatus';
+  document.getElementById('simBtn').disabled = false;
+  simRunning = false;
+}
+
+function resetMatch(){
+  if(simRunning) return;
+  myScore=0; oppScore=0; myShots=0; oppShots=0; myPasses=0;
+  document.getElementById('score').textContent = '- : -';
+  document.getElementById('mstatus').textContent = '경기 전';
+  document.getElementById('mstatus').className = 'mstatus';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('possRow').style.display = 'none';
+  document.getElementById('log').innerHTML = '<div class="empty"><div class="big">🏟</div><div>경기 시작을 눌러주세요</div></div>';
+  moveBall(50,50);
+}
+
+// INIT
+document.getElementById('press').addEventListener('input', function(e){
+  document.getElementById('pressv').textContent = e.target.value;
+});
+document.getElementById('tempo').addEventListener('input', function(e){
+  document.getElementById('tempov').textContent = e.target.value;
+});
+document.getElementById('simBtn').addEventListener('click', startSim);
+document.getElementById('rstBtn').addEventListener('click', resetMatch);
+
+buildFormationBtns();
+buildPlayerList();
+renderPitch();
+</script>
+</body>
+</html>
